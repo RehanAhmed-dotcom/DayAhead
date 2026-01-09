@@ -1,0 +1,110 @@
+pluginManagement { 
+    includeBuild("../node_modules/@react-native/gradle-plugin") 
+}
+
+plugins { 
+    id("com.facebook.react.settings") 
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesFromCommand()
+}
+
+rootProject.name = 'dayahead'
+
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// Manual includes for all required native libraries
+
+include ':react-native-vector-icons'
+project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
+
+include ':react-native-async-storage_async-storage'
+project(':react-native-async-storage_async-storage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-async-storage/async-storage/android')
+
+include ':stripe_stripe-react-native'
+project(':stripe_stripe-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/@stripe/stripe-react-native/android')
+
+include ':zegocloud_zego-uikit-prebuilt-call-rn'
+project(':zegocloud_zego-uikit-prebuilt-call-rn').projectDir = new File(rootProject.projectDir, '../node_modules/@zegocloud/zego-uikit-prebuilt-call-rn/android')
+
+include ':zegocloud_zego-uikit-rn'
+project(':zegocloud_zego-uikit-rn').projectDir = new File(rootProject.projectDir, '../node_modules/@zegocloud/zego-uikit-rn/android')
+
+include ':react-native-svg'
+project(':react-native-svg').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-svg/android')
+
+include ':react-native-encrypted-storage'
+project(':react-native-encrypted-storage').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-encrypted-storage/android')
+
+include ':react-native-gesture-handler'
+project(':react-native-gesture-handler').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
+
+include ':react-native-image-crop-picker'
+project(':react-native-image-crop-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-crop-picker/android')
+
+include ':react-native-reanimated'
+project(':react-native-reanimated').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-reanimated/android')
+
+include ':react-native-safe-area-context'
+project(':react-native-safe-area-context').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-safe-area-context/android')
+
+include ':react-native-screens'
+project(':react-native-screens').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-screens/android')
+
+include ':react-native-webview'
+project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
+
+include ':zego-express-engine-reactnative'
+project(':zego-express-engine-reactnative').projectDir = new File(rootProject.projectDir, '../node_modules/zego-express-engine-reactnative/android')
+
+include ':zego-zim-react-native'
+project(':zego-zim-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/zego-zim-react-native/android')
+
+include ':react-native-worklets'
+project(':react-native-worklets').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-worklets/android')
+
+// === Libraries from your error log (the ones causing "No variants exist") ===
+
+include ':notifee_react-native'
+project(':notifee_react-native').projectDir = new File(rootProject.projectDir, '../node_modules/@notifee/react-native/android')
+
+include ':react-native-community_datetimepicker'
+project(':react-native-community_datetimepicker').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/datetimepicker/android')
+
+include ':react-native-firebase_app'
+project(':react-native-firebase_app').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/app/android')
+
+include ':react-native-firebase_analytics'
+project(':react-native-firebase_analytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/analytics/android')
+
+include ':react-native-firebase_crashlytics'
+project(':react-native-firebase_crashlytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/crashlytics/android')
+
+include ':react-native-firebase_database'
+project(':react-native-firebase_database').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/database/android')
+
+include ':react-native-firebase_messaging'
+project(':react-native-firebase_messaging').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/messaging/android')
+
+include ':react-native-google-signin_google-signin'
+project(':react-native-google-signin_google-signin').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-google-signin/google-signin/android')
+
+include ':react-native-app-auth'
+project(':react-native-app-auth').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-app-auth/android')
+
+include ':react-native-fast-image'
+project(':react-native-fast-image').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fast-image/android')
+
+include ':react-native-keep-awake'
+project(':react-native-keep-awake').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keep-awake/android')
+
+include ':react-native-linear-gradient'
+project(':react-native-linear-gradient').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-linear-gradient/android')
+
+include ':react-native-push-notification'
+project(':react-native-push-notification').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-push-notification/android')
+
+include ':react-native-sound'
+project(':react-native-sound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')

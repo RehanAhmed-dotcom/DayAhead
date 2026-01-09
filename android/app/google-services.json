@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "727912955730",
+    "project_id": "dayahead-c1a0f",
+    "storage_bucket": "dayahead-c1a0f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:727912955730:android:4efa67a16436e0baba848b",
+        "android_client_info": {
+          "package_name": "com.dayahead"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLS_PWVmjlRO9BTs0NqyJNwgMOv4ckguk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
