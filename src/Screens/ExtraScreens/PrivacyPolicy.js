@@ -38,11 +38,11 @@ const PrivacyPolicy = ({ navigation }) => {
       </ImageBackground>
     );
   }
-  const {top}=useSafeAreaInsets()
-    return (
+  const { top } = useSafeAreaInsets();
+  return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1,paddingTop:Platform.OS === 'ios' ?35: 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       <KeyboardAvoidingView
@@ -50,7 +50,7 @@ const PrivacyPolicy = ({ navigation }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-         <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -58,17 +58,31 @@ const PrivacyPolicy = ({ navigation }) => {
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -76,11 +90,11 @@ const PrivacyPolicy = ({ navigation }) => {
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
-           Privacy Policys
+            Privacy Policys
           </Text>
 
           {/* Empty View to balance the row */}
@@ -90,7 +104,7 @@ const PrivacyPolicy = ({ navigation }) => {
           <View style={{ marginHorizontal: wp(5), marginTop: wp(5) }}>
             <Text
               style={{
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 14,
                 fontFamily: fonts.regular,
                 lineHeight: 22,
@@ -112,7 +126,7 @@ const PrivacyPolicy = ({ navigation }) => {
             </Text>
             <Text
               style={{
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 14,
                 fontFamily: fonts.regular,
                 lineHeight: 22,

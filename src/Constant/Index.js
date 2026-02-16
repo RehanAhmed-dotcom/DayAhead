@@ -39,6 +39,7 @@ const images = {
   tickcong: require('../Assets/tickcong.png'),
   finaltick: require('../Assets/finaltick.png'),
   homepic: require('../Assets/homepic.png'),
+  mainImage: require('../Assets/Background.png'),
   taskspic: require('../Assets/taskspic.png'),
   chatpic: require('../Assets/chatpic.png'),
   profilepic: require('../Assets/profilepic.png'),
@@ -60,15 +61,12 @@ const images = {
   dummypic3: require('../Assets/dummypic3.png'),
   flag: require('../Assets/flag.png'),
   sendIcon: require('../Assets/sendIcon.png'),
-  uploadIcon: require('../Assets/uploadIcon.png'),
-  uploadIcon: require('../Assets/uploadIcon.png'),
-mySplash:require('../Assets/mySplash.png'),
-mySplash2:require('../Assets/mySplash2.png'),
-mySplash3:require('../Assets/mySplash3.png'),
-myalarmbg:require('../Assets/myalarmbg.gif'),
-
-
-
+  uploadIcon: require('../Assets/WhiteUpload.png'),
+  // uploadIcon: require('../Assets/uploadIcon.png'),
+  mySplash: require('../Assets/mySplash.png'),
+  mySplash2: require('../Assets/mySplash2.png'),
+  mySplash3: require('../Assets/mySplash3.png'),
+  myalarmbg: require('../Assets/myalarmbg.gif'),
 
   taskpic1: require('../Assets/taskpic1.png'),
   taskpic2: require('../Assets/taskpic2.png'),
@@ -117,7 +115,6 @@ myalarmbg:require('../Assets/myalarmbg.gif'),
   google: require('../Assets/google.png'),
   mynotiIcon: require('../Assets/mynotiIcon.png'),
 
-
   communityback1: require('../Assets/communityback1.png'),
   communityback2: require('../Assets/communityback2.png'),
 
@@ -137,7 +134,7 @@ myalarmbg:require('../Assets/myalarmbg.gif'),
   launch_screen: require('../Assets/lunchScreen.png'),
 
   joincommunityImg: require('../Assets/joincommunityImg.png'),
-
+  menuIcon2: require('../Assets/menuIcon2.png'),
   podcastback1: require('../Assets/podcastback1.png'),
   podcastIcon: require('../Assets/podcastIcon.png'),
   podcastpic1: require('../Assets/podcastpic1.png'),
@@ -163,10 +160,6 @@ myalarmbg:require('../Assets/myalarmbg.gif'),
   happy: require('../Assets/happy.png'),
 
   completeT: require('../Assets/completeT.png'),
-
-
-
-
 };
 export { fonts, images };
 
@@ -187,12 +180,12 @@ export const styles = StyleSheet.create({
   btnView: {
     width: wp(88),
     height: wp(13),
-    borderRadius: wp(3), 
+    borderRadius: 12,
     backgroundColor: Colors.mainColor,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    elevation: 2,
+    // elevation: 2,
   },
   titleText: {
     fontSize: 14,
@@ -206,12 +199,12 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: fonts.medium,
     borderRadius: wp(4),
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#00000066',
     textAlign: 'center',
     marginHorizontal: wp(4),
-    color: Colors.black,
+    color: Colors.white,
     elevation: 2,
-    borderWidth: 0.5,
+    // borderWidth: 0.5,
     borderColor: Colors.mainColor,
   },
   flatView: {
@@ -230,15 +223,15 @@ export const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   uploadpicView: {
-    width: wp(29),
-    height: wp(29),
-    borderWidth: 1,
+    width: wp(90),
+    height: 160,
+    // borderWidth: 1,
     borderColor: '#667085',
     borderStyle: 'dotted',
     borderRadius: wp(3),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#00000099',
   },
   descText: {
     fontSize: 12,
@@ -259,7 +252,7 @@ export const styles = StyleSheet.create({
   mainText: {
     fontSize: 14,
     fontFamily: fonts.bold,
-    color: Colors.black,
+    color: Colors.white,
   },
   modalContainer: {
     backgroundColor: 'white',
@@ -413,9 +406,9 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     width: wp(90),
     height: wp(13),
-    backgroundColor: Colors.lightgreen,
+    backgroundColor: '#BD2BAF33',
     borderRadius: wp(2),
-    elevation: 2,
+    // elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
@@ -523,20 +516,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pointsBig: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: '900',
-    color: '#0F2B4A', // Dark blue from your screenshot
+    color: 'white', // Dark blue from your screenshot
     textAlign: 'center',
   },
   pointsSmall: {
-    fontSize: 16,
+    fontSize: 30,
     fontWeight: '700',
-    color: '#0F2B4A',
+    color: 'white',
   },
   subtitle: {
     marginTop: 8,
     fontSize: 16,
-    color: '#666666',
+    color: 'white',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -642,16 +635,13 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
 
-
-
-  
   fullImage: {
     width: '100%',
     height: '100%',
   },
   oracleContainer: {
     flex: 1,
-    justifyContent:"center",
+    justifyContent: 'center',
     backgroundColor: '#00000088',
   },
   oracleImage: {
@@ -685,22 +675,30 @@ export const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
   },
- optionRowStyle : {
+  optionRowStyle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: wp(3.5),
     borderBottomWidth: 0.5,
     borderBottomColor: '#DEDEDE',
-    
   },
-  
- optionTextStyle : {
+
+  optionTextStyle: {
     fontSize: 16,
     fontFamily: fonts.medium,
     color: '#555',
-    width:wp(70),
-    
-    
-  }
+    width: wp(70),
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 120,
+    right: 30,
+    backgroundColor: '#BD2BAF',
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

@@ -57,7 +57,7 @@ const MyNotes = ({ navigation }) => {
             .then(res => {
                 setIsLoading(false);
                 if (res.status === 'success') {
-                    setMyNotes(res.data || []);
+                    setMyNotes(res?.data?.reverse() || []);
                 }
             })
             .catch(err => {

@@ -116,7 +116,7 @@ const ShareWithMembers = ({ navigation, route }) => {
   );
   return (
     <ImageBackground
-      source={images.mainbackground}
+      source={images.myallbackbg}
       style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?40: 20, }}
       resizeMode="cover"
     >
@@ -132,7 +132,7 @@ const ShareWithMembers = ({ navigation, route }) => {
           barStyle={'light-content'}
         />
 
-        <View
+        {/* <View
           style={{
             marginTop: wp(7),
             marginHorizontal: wp(5),
@@ -143,20 +143,58 @@ const ShareWithMembers = ({ navigation, route }) => {
           }}
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <AntDesign name="left" size={20} color={Colors.white} />
+            <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.white,
+              color: Colors.black,
               marginRight: wp(7),
             }}
           >
             Sending To....
           </Text>
           <Text></Text>
+        </View> */}
+       
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            elevation: 4,
+            width: wp(100),
+            height: wp(25),
+            backgroundColor: '#FAFAFA',
+            paddingHorizontal: wp(4),
+            paddingTop: wp(5),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 6 }, 
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
+          }}
+        >
+              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <AntDesign name="left" size={20} color={Colors.black} />
+          </TouchableOpacity>
+
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: fonts.bold,
+              color: Colors.black,
+              // marginRight: wp(7),
+            }}
+          >
+            Sending To....
+          </Text>
+
+          {/* Empty View to balance the row */}
+          <View style={{ width: 20 }} />
         </View>
+
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View
             style={{

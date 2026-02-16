@@ -63,12 +63,12 @@ export default function SpotifyEpisodes({ navigation, route }) {
         style={styles.card}
       >
         {/* Blurred + Slightly Enlarged Background */}
-        <Image
+        {/* <Image
           source={{ uri: imageUrl }}
           style={styles.blurredBg}
           resizeMode="cover"
           blurRadius={30} // iOS & Android (works natively)
-        />
+        /> */}
 
         {/* Optional dark overlay for better text readability */}
         <View style={styles.overlay} />
@@ -77,7 +77,7 @@ export default function SpotifyEpisodes({ navigation, route }) {
         <Image
           source={{ uri: imageUrl }}
           style={styles.mainImage}
-          resizeMode="contain"
+          resizeMode="cover"
         />
 
         {/* Text content */}
@@ -95,19 +95,32 @@ export default function SpotifyEpisodes({ navigation, route }) {
       </TouchableOpacity>
     );
   };
-const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS=='ios'?30: 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS == 'ios' ? 15 : 0 }}
     >
       {loading && <Loader />}
-    
 
       {/* Header */}
       <View style={styles.header}>
-      <StatusBar backgroundColor="transparent" translucent />
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <StatusBar
+          backgroundColor="transparent"
+          barStyle={'light-content'}
+          translucent
+        />
+        <TouchableOpacity
+          style={{
+            backgroundColor: 'white',
+            width: 25,
+            height: 25,
+            borderRadius: 25,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={() => navigation.goBack()}
+        >
           <AntDesign name="left" size={20} color={Colors.black} />
         </TouchableOpacity>
 
@@ -148,7 +161,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     width: wp(100),
     height: wp(25),
-    backgroundColor: '#FAFAFA',
+    // backgroundColor: '#FAFAFA',
     paddingHorizontal: wp(4),
     paddingTop: wp(5),
     shadowColor: '#000',
@@ -159,19 +172,20 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: fonts.bold,
-    color: Colors.black,
+    color: Colors.white,
   },
   listContainer: {
-    marginHorizontal: wp(4),
-    marginBottom: wp(10),
-    marginTop: wp(4),
+    marginHorizontal: 16,
+    // marginVertical: 8,
   },
   card: {
-    marginBottom: wp(8),
+    marginBottom: 16,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#111',
-    elevation: 8,
+    // backgroundColor: '#111',
+    paddingTop: 20,
+    backgroundColor: Colors.mainColor + 60,
+    // elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -189,8 +203,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   mainImage: {
-    width: '100%',
+    width: '90%',
     height: wp(50),
+    alignSelf: 'center',
+    borderRadius: 10,
   },
   textContainer: {
     padding: wp(4),

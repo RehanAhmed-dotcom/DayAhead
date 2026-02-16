@@ -200,11 +200,11 @@ const Conversation = ({ navigation, route }) => {
   const screenHeight = Dimensions.get('window').height;
   return (
     <ImageBackground
-      source={images.myallbackbg}
+      source={images.mainImage}
       style={{
         flex: 1,
-        paddingTop: Platform.OS === 'ios' ? top : 0,
-        height: screenHeight,
+        paddingTop: Platform.OS === 'ios' ? 15 : 0,
+        height: '100%',
       }}
       resizeMode="cover"
     >
@@ -214,36 +214,50 @@ const Conversation = ({ navigation, route }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-<View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
+            // shadowColor: '#000',
+            // shadowOffset: { width: 0, height: 3 },
+            // shadowOpacity: 0.25,
+            // shadowRadius: 4,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              height: 25,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 25,
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
-              marginRight: wp(7),
+              color: Colors.white,
+              marginRight: wp(5),
             }}
           >
-            {item.username || item.name}
+            Conversation
           </Text>
           <Text></Text>
         </View>
@@ -288,7 +302,7 @@ const Conversation = ({ navigation, route }) => {
           <TextInput
             style={styles.input}
             placeholder="Type a message..."
-            placeholderTextColor="gray"
+            placeholderTextColor="white"
             value={message}
             onChangeText={setMessage}
           />
@@ -296,13 +310,17 @@ const Conversation = ({ navigation, route }) => {
             onPress={() => setconfirm2(true)}
             style={styles.attachBtn}
           >
-            <Image source={images.attach} style={{ width: 24, height: 24 }} />
+            <Image
+              source={images.attach}
+              tintColor={'white'}
+              style={{ width: 24, height: 24 }}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleSend} disabled={!message && !image}>
             <Ionicons
               name="send"
               size={24}
-              color={message || image ? Colors.mainColor : 'gray'}
+              color={message || image ? Colors.white : 'gray'}
             />
           </TouchableOpacity>
         </View>
@@ -364,12 +382,12 @@ const styles = StyleSheet.create({
     paddingBottom: wp(1),
   },
   myBubble: { backgroundColor: Colors.mainColor },
-  theirBubble: { backgroundColor: '#eee' },
+  theirBubble: { backgroundColor: '#00000066' },
   myText: { color: 'white', fontSize: wp(4) },
-  theirText: { color: 'black', fontSize: wp(4) },
+  theirText: { color: 'white', fontSize: wp(4) },
   timeText: {
     fontSize: 10,
-    color: 'rgba(0, 0, 0, 0.7)',
+    color: 'white',
     alignSelf: 'flex-end',
     marginTop: 4,
   },
@@ -382,19 +400,24 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#BD2BAF4D',
+    width: '90%',
+    alignSelf: 'center',
+    borderRadius: 10,
     padding: wp(3),
-    borderTopWidth: 1,
+    // borderTopWidth: 1,
     borderColor: '#eee',
-    marginBottom: Platform.OS == 'ios' ? 20 : 0,
+    marginBottom: Platform.OS == 'ios' ? 20 : 10,
   },
   input: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    // backgroundColor: '#f0f0f0',
     borderRadius: 25,
     paddingHorizontal: wp(4),
+    color: 'white',
     paddingVertical: wp(3),
     marginRight: wp(2),
+    // marginBottom:wp(2)
   },
   attachBtn: { marginRight: wp(3) },
   imagePreview: {

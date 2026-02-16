@@ -9,6 +9,7 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Share,
   FlatList,
   Modal,
 } from 'react-native';
@@ -30,10 +31,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const CommunityScreen = ({ navigation, route }) => {
   const user = useSelector(state => state.user.user);
   const { item } = route.params;
-  // console.log('my item new data', JSON.stringify(item));
+  console.log('my Community', JSON.stringify(item));
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
-
+  const [shareId, setShareId] = useState('');
   // console.log('my image data', JSON.stringify(image));
   const [CommunityPosts, setCommunityPosts] = useState([]);
   // console.log('my post data', JSON.stringify(CommunityPosts));
@@ -60,7 +61,33 @@ const CommunityScreen = ({ navigation, route }) => {
         console.log('api error tasks', err);
       });
   };
+  const shareFunction = async id => {
+    //  const postId = postdata?.id || postdata?.redirect || communityDetails?.id;
 
+    // Generate the deep link URL
+    const deepLinkUrl = `https://plantflipsapp.com/community/post/${id}`;
+    console.log('deepLinking dd', deepLinkUrl);
+    const shareMessage = `Check out this community post: ${
+      deepLinkUrl || 'View this post in the app'
+    }`;
+
+    try {
+      const result = await Share.share({
+        message: shareMessage,
+        url: deepLinkUrl,
+        title: 'Community Post',
+      });
+
+      if (result.action === Share.sharedAction) {
+        console.log('Shared successfully');
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      Alert.alert('Share Error', 'Unable to share the post. Please try again.');
+      console.log('Share error:', error.message);
+    }
+  };
   const getLikesofPosts = id => {
     setIsLoading(true);
     AllGetAPI({
@@ -101,6 +128,16 @@ const CommunityScreen = ({ navigation, route }) => {
     getCommunityPosts();
     // getLikesofPosts();
   }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getCommunityPosts();
+      // The screen is focused
+      // Call any action
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
   const upload = async () => {
     try {
       const image = await ImageCropPicker.openPicker({
@@ -172,8 +209,8 @@ const CommunityScreen = ({ navigation, route }) => {
   const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 35 : 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -182,32 +219,48 @@ const CommunityScreen = ({ navigation, route }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-       <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <AntDesign name="left" size={20} color={Colors.black} />
-          </TouchableOpacity>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <View style={{ width: 50 }}>
+            <TouchableOpacity
+              style={{
+                width: 25,
+                height: 25,
+                backgroundColor: 'white',
+                borderRadius: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onPress={() => navigation.goBack()}
+            >
+              <AntDesign name="left" size={20} color={Colors.black} />
+            </TouchableOpacity>
+          </View>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginLeft: wp(15),
             }}
           >
@@ -234,10 +287,16 @@ const CommunityScreen = ({ navigation, route }) => {
               Add To Group
             </Text>
           </TouchableOpacity> */}
-          <Text></Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('CreatePost', { id: item.id });
+            }}
+          >
+            <Text style={{ color: 'white', fontSize: 12 }}>+ Add Post</Text>
+          </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View
+          {/* <View
             style={{
               width: wp(90),
               backgroundColor: 'white',
@@ -329,8 +388,10 @@ const CommunityScreen = ({ navigation, route }) => {
                 Check In
               </Text>
             </TouchableOpacity>
-          </View>
-          <View style={{ marginHorizontal: wp(3), marginBottom: wp(4) }}>
+          </View> */}
+          <View
+            style={{ marginHorizontal: wp(3), marginBottom: wp(4), flex: 1 }}
+          >
             {CommunityPosts?.length < 1 ? (
               <View
                 style={{
@@ -341,13 +402,12 @@ const CommunityScreen = ({ navigation, route }) => {
               >
                 <Text
                   style={{
-                    fontSize: 20,
-                    fontFamily: fonts.bold,
-                    color: Colors.black,
-                    marginTop: wp(40),
+                    fontSize: 15,
+                    fontFamily: fonts.medium,
+                    color: Colors.white,
                   }}
                 >
-                  No Community Posts found.
+                  No posts yet—be the first to share
                 </Text>
               </View>
             ) : (
@@ -360,16 +420,17 @@ const CommunityScreen = ({ navigation, route }) => {
                   <View
                     style={{
                       width: wp(90),
-                      backgroundColor: 'white',
+                      // backgroundColor: 'white',
+                      backgroundColor: '#BD2BAF33',
                       marginVertical: wp(2),
                       borderRadius: wp(3),
                       alignSelf: 'center',
-                      elevation: 4,
+                      // elevation: 4,
                       shadowColor: '#000',
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.18,
                       shadowRadius: 8,
-                      paddingHorizontal: wp(3),
+                      paddingHorizontal: wp(4),
                       paddingVertical: wp(3),
                     }}
                   >
@@ -391,8 +452,23 @@ const CommunityScreen = ({ navigation, route }) => {
                         }}
                       />
                       <View>
-                        <Text>{item?.user?.name}</Text>
-                        <Text>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: 16,
+                            fontFamily: fonts.medium,
+                          }}
+                        >
+                          {item?.user?.name}
+                        </Text>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: 10,
+                            // marginTop: 5,
+                            fontFamily: fonts.light,
+                          }}
+                        >
                           {moment(item?.created_at)
                             .subtract(0, 'days')
                             .calendar()}
@@ -411,7 +487,7 @@ const CommunityScreen = ({ navigation, route }) => {
                           style={{
                             fontSize: 10,
                             fontFamily: fonts.medium,
-                            color: '#747474',
+                            color: 'white',
                             lineHeight: 14,
                           }}
                           numberOfLines={4}
@@ -419,19 +495,23 @@ const CommunityScreen = ({ navigation, route }) => {
                           {item?.description}
                         </Text>
                       </View>
-                      {item?.image ? (
-                        <Image
-                          source={item?.image ? { uri: item?.image } : null}
-                          resizeMode="cover"
-                          style={{
-                            width: wp(80),
-                            height: wp(50),
-                            alignSelf: 'center',
-                            borderRadius: 8,
-                            marginTop: wp(2),
-                          }}
-                        />
-                      ) : null}
+                      {/* {item?.image ? ( */}
+                      <Image
+                        source={
+                          item?.image
+                            ? { uri: item?.image }
+                            : require('../../Assets/Binance.png')
+                        }
+                        resizeMode="cover"
+                        style={{
+                          width: '100%',
+                          height: wp(50),
+                          alignSelf: 'center',
+                          borderRadius: 8,
+                          marginTop: wp(2),
+                        }}
+                      />
+                      {/* ) : null} */}
                     </TouchableOpacity>
                     <View
                       style={{
@@ -446,15 +526,29 @@ const CommunityScreen = ({ navigation, route }) => {
                       >
                         <TouchableOpacity
                           onPress={() => getLikesofPosts(item.id)}
-                          style={{ marginRight: wp(3) }}
+                          style={{
+                            marginRight: wp(3),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
                         >
                           <Entypo
                             name={
                               item?.is_like === 1 ? 'heart' : 'heart-outlined'
                             }
                             size={18}
-                            color={'#8EB9AB'}
+                            color={'white'}
                           />
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontFamily: fonts.medium,
+                              color: Colors.white,
+                              marginLeft: 5,
+                            }}
+                          >
+                            {`(${item?.likes.length})`}
+                          </Text>
                           {/* <Image
                             source={images.heartIcon}
                             resizeMode="contain"
@@ -466,6 +560,7 @@ const CommunityScreen = ({ navigation, route }) => {
                           /> */}
                         </TouchableOpacity>
                         <TouchableOpacity
+                          style={{ flexDirection: 'row', alignItems: 'center' }}
                           onPress={() =>
                             navigation.navigate('CommunityDetails', {
                               postdata: item,
@@ -475,22 +570,38 @@ const CommunityScreen = ({ navigation, route }) => {
                           <Image
                             source={images.messageIcon}
                             resizeMode="contain"
+                            tintColor={'white'}
                             style={{
                               width: 17,
                               height: 17,
-                              marginRight: wp(3),
                             }}
                           />
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontFamily: fonts.medium,
+                              color: Colors.white,
+                              marginLeft: 5,
+                              marginRight: wp(3),
+                            }}
+                          >
+                            {`(${item?.comments?.length})`}
+                          </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            shareFunction(item?.id);
+                          }}
+                        >
                           <Image
+                            tintColor={'white'}
                             source={images.shareIcon}
                             resizeMode="contain"
                             style={{ width: 17, height: 17 }}
                           />
                         </TouchableOpacity>
                       </View>
-                      <View style={{ flexDirection: 'row' }}>
+                      {/* <View style={{ flexDirection: 'row' }}>
                         {item?.likes.slice(0, 4).map((data, index) => (
                           <Image
                             key={index}
@@ -511,44 +622,8 @@ const CommunityScreen = ({ navigation, route }) => {
                             ]}
                           />
                         ))}
-                        {/* // <Image
-                        //   source={images.statuspic3}
-                        //   resizeMode="contain"
-                        //   style={{
-                        //     width: 17,
-                        //     height: 17,
-                        //     marginLeft: wp(-1.5),
-                        //   }}
-                        // />
-                        // <Image
-                        //   source={images.statuspic4}
-                        //   resizeMode="contain"
-                        //   style={{
-                        //     width: 17,
-                        //     height: 17,
-                        //     marginLeft: wp(-1.5),
-                        //   }}
-                        // />
-                        // <Image
-                        //   source={images.statuspic3}
-                        //   resizeMode="contain"
-                        //   style={{
-                        //     width: 17,
-                        //     height: 17,
-                        //     marginLeft: wp(-1.5),
-                        //   }}
-                        // /> */}
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            fontFamily: fonts.medium,
-                            color: Colors.black,
-                            marginLeft: wp(2),
-                          }}
-                        >
-                          {item?.likes.length} people liked this
-                        </Text>
-                      </View>
+                       
+                      </View> */}
                     </View>
                   </View>
                 )}

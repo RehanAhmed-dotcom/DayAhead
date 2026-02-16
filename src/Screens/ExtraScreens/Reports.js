@@ -23,12 +23,13 @@ import Feather from 'react-native-vector-icons/Feather';
 import MainButton from '../../Components/MainButton';
 import * as Progress from 'react-native-progress';
 import { useFocusEffect } from '@react-navigation/native';
-import { AllGetAPI } from '../../Components/ApiRoot';
+import { AllGetAPI, PostAPiwithToken } from '../../Components/ApiRoot';
 import Loader from '../../Components/Loader';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-const Reports = ({ navigation }) => {
+const Reports = ({ navigation, route }) => {
   const user = useSelector(state => state.user.user);
+  const { item } = route.params;
   const [firstMonthReport, setFirstMonthReport] = useState({});
   const [secondMonthReport, setSecondMonthReport] = useState({});
   const [thirdMonthReport, setThirdMonthReport] = useState({});
@@ -84,7 +85,9 @@ const Reports = ({ navigation }) => {
 
   const getAllReports = () => {
     setIsLoading(true);
-    AllGetAPI({ url: 'stats_detail', Token: user?.api_token })
+    const formdata = new FormData();
+    formdata.append('name', item.name);
+    PostAPiwithToken({ url: 'stats_detail', Token: user?.api_token }, formdata)
       .then(res => {
         setIsLoading(false);
         console.log('api response stats detail', JSON.stringify(res));
@@ -105,11 +108,11 @@ const Reports = ({ navigation }) => {
       getAllReports();
     }, []),
   );
-  const {top} =useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?30: 0, }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -118,7 +121,7 @@ const Reports = ({ navigation }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-      <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -126,7 +129,7 @@ const Reports = ({ navigation }) => {
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
@@ -135,8 +138,22 @@ const Reports = ({ navigation }) => {
             shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 30,
+              height: 30,
+              borderRadius: 30,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -144,7 +161,7 @@ const Reports = ({ navigation }) => {
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
@@ -161,7 +178,7 @@ const Reports = ({ navigation }) => {
               marginTop: wp(5),
               marginHorizontal: wp(5),
               padding: wp(4),
-              backgroundColor: Colors.lightgreen,
+              backgroundColor: '#BD2BAF33',
               borderRadius: wp(3),
               marginBottom: wp(5),
               elevation: 2,
@@ -175,7 +192,7 @@ const Reports = ({ navigation }) => {
               style={{
                 fontSize: 16,
                 fontFamily: fonts.bold,
-                color: Colors.black,
+                color: Colors.white,
                 textAlign: 'left',
               }}
             >
@@ -192,8 +209,8 @@ const Reports = ({ navigation }) => {
                 size={hp(22)} // Big circle size
                 progress={progress}
                 thickness={20} // Thick ring
-                color="#2CC8A6" // Green filled part
-                unfilledColor="#F95555" // Red unfilled part
+                color={Colors.mainColor} // Green filled part
+                unfilledColor={'#801C76CC'} // Red unfilled part
                 borderWidth={0}
                 animated={true}
                 showsText={false} // We use custom center content
@@ -217,7 +234,7 @@ const Reports = ({ navigation }) => {
               //   marginTop: wp(5),
               marginHorizontal: wp(5),
               padding: wp(4),
-              backgroundColor: Colors.lightgreen,
+              backgroundColor: '#BD2BAF33',
               borderRadius: wp(3),
               marginBottom: wp(5),
               elevation: 2,
@@ -231,7 +248,7 @@ const Reports = ({ navigation }) => {
               style={{
                 fontSize: 16,
                 fontFamily: fonts.bold,
-                color: Colors.black,
+                color: Colors.white,
                 textAlign: 'left',
               }}
             >
@@ -248,8 +265,8 @@ const Reports = ({ navigation }) => {
                 size={hp(22)} // Big circle size
                 progress={progressSecond}
                 thickness={20} // Thick ring
-                color="#2CC8A6" // Green filled part
-                unfilledColor="#F95555" // Red unfilled part
+                color={Colors.mainColor} // Green filled part
+                unfilledColor={'#801C76CC'} // Red unfilled part
                 borderWidth={0}
                 animated={true}
                 showsText={false} // We use custom center content
@@ -273,7 +290,7 @@ const Reports = ({ navigation }) => {
               //   marginTop: wp(5),
               marginHorizontal: wp(5),
               padding: wp(4),
-              backgroundColor: Colors.lightgreen,
+              backgroundColor: '#BD2BAF33',
               borderRadius: wp(3),
               marginBottom: wp(15),
               elevation: 2,
@@ -287,7 +304,7 @@ const Reports = ({ navigation }) => {
               style={{
                 fontSize: 16,
                 fontFamily: fonts.bold,
-                color: Colors.black,
+                color: Colors.white,
                 textAlign: 'left',
               }}
             >
@@ -304,8 +321,8 @@ const Reports = ({ navigation }) => {
                 size={hp(22)} // Big circle size
                 progress={progressThird}
                 thickness={20} // Thick ring
-                color="#2CC8A6" // Green filled part
-                unfilledColor="#F95555" // Red unfilled part
+                color={Colors.mainColor} // Green filled part
+                unfilledColor={'#801C76CC'} // Red unfilled part
                 borderWidth={0}
                 animated={true}
                 showsText={false} // We use custom center content

@@ -82,12 +82,12 @@ const Faqs = ({ navigation }) => {
   const renderFaqItem = ({ item }) => (
     <TouchableOpacity
       style={{
-        backgroundColor: Colors.lightgreen,
+        backgroundColor: '#BD2BAF33',
         marginVertical: wp(2),
         marginHorizontal: wp(5),
         borderRadius: wp(3),
         padding: wp(4),
-        elevation: 2,
+        // elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
@@ -106,7 +106,7 @@ const Faqs = ({ navigation }) => {
           style={{
             fontSize: 14,
             fontFamily: fonts.medium,
-            color: Colors.black,
+            color: Colors.white,
             flex: 1,
           }}
         >
@@ -115,7 +115,7 @@ const Faqs = ({ navigation }) => {
         <SimpleLineIcons
           name={item.isExpanded ? 'arrow-up-circle' : 'arrow-down-circle'}
           size={18}
-          color={Colors.black}
+          color={Colors.white}
         />
       </View>
       {item.isExpanded && (
@@ -123,7 +123,7 @@ const Faqs = ({ navigation }) => {
           style={{
             fontSize: 12,
             fontFamily: fonts.regular,
-            color: Colors.gray,
+            color: Colors.white,
             marginTop: wp(3),
           }}
         >
@@ -143,11 +143,11 @@ const Faqs = ({ navigation }) => {
       </ImageBackground>
     );
   }
-  const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?35: 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       <KeyboardAvoidingView
@@ -155,7 +155,7 @@ const Faqs = ({ navigation }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-       <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -163,17 +163,31 @@ const Faqs = ({ navigation }) => {
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -181,11 +195,11 @@ const Faqs = ({ navigation }) => {
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
-           FAQs
+            FAQs
           </Text>
 
           {/* Empty View to balance the row */}

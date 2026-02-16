@@ -29,6 +29,7 @@ import Loader from '../../Components/Loader';
 import Toast from 'react-native-toast-message';
 import { setUser } from '../../Redux/Auth';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Input1 from '../../Components/Input1';
 const EditProfile = ({ navigation }) => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user.user);
@@ -146,11 +147,11 @@ const EditProfile = ({ navigation }) => {
         });
       });
   };
-const {top}= useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1,paddingTop:Platform.OS === 'ios' ?35: 0 , }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -159,7 +160,7 @@ const {top}= useSafeAreaInsets()
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-          <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -167,17 +168,31 @@ const {top}= useSafeAreaInsets()
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -185,139 +200,143 @@ const {top}= useSafeAreaInsets()
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
-          Edit Profile
+            Edit Profile
           </Text>
 
           {/* Empty View to balance the row */}
           <View style={{ width: 20 }} />
         </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={{paddingHorizontal:wp(5)}}>
-          <View>
-            {/* <Image
+          <View style={{ paddingHorizontal: wp(5) }}>
+            <View>
+              {/* <Image
                 source={images.avatarpic}
                 style={{ width: wp(40), height: wp(40), alignSelf: 'center', marginTop: wp(10) }}
                 resizeMode='contain'
               /> */}
-            {image ? (
-              <TouchableOpacity
-                onPress={upload}
-                style={{ alignSelf: 'center' }}
-              >
-                <Image
-                  source={image ? { uri: image } : images.avatarpic}
-                  style={{
-                    width: wp(22),
-                    height: wp(22),
-                    alignSelf: 'center',
-                    marginTop: wp(10),
-                    borderRadius: wp(15),
-                  }}
-                  resizeMode="contain"
-                />
-                <Image
-                  source={images.editprofile}
-                  style={{
-                    width: 19,
-                    height: 19,
-                    alignSelf: 'flex-end',
-                    marginTop: wp(-4),
-                    marginRight: wp(1),
-                  }}
-                  tintColor={Colors.mainColor}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={upload}
-                style={{ alignSelf: 'center' }}
-              >
-                <Image
-                  source={user.image ? { uri: user.image } : images.avatarpic}
-                  style={{
-                    width: wp(22),
-                    height: wp(22),
-                    alignSelf: 'center',
-                    marginTop: wp(10),
-                    borderRadius: wp(15),
-                  }}
-                  resizeMode="contain"
-                />
-                <Image
-                  source={images.editprofile}
-                  style={{
-                    width: 19,
-                    height: 19,
-                    alignSelf: 'flex-end',
-                    marginTop: wp(-4),
-                    marginRight: wp(1),
-                  }}
-                               tintColor={Colors.mainColor}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-          <Input
-            label="Username"
-            placeholder="Enter username"
-            value={username}
-            onChangeText={text => setUsername(text)}
-            type="default"
-            showBorder
-            inputColor="#F5F5F5"
-            labelColor="#212121"
-            placeFontSize={16}
-            maxLength={50}
-          />
-          <Input
-            label="Email"
-            placeholder="Enter email"
-            value={email}
-            onChangeText={setEmail}
-            type="default"
-            showBorder
-            inputColor="#F5F5F5"
-            labelColor="#212121"
-            placeFontSize={16}
-            maxLength={50}
-            nonEditable
-          />
-          <Input
-            label="Goals"
-            placeholder="Enter goals"
-            value={goals}
-            onChangeText={text => setGoals(text)}
-            type="default"
-            showBorder
-            inputColor="#F5F5F5"
-            labelColor="#212121"
-            placeFontSize={16}
-            maxLength={50}
-          />
-          <Input
-            label="Preferences"
-            placeholder="Enter preferences"
-            value={preferences}
-            onChangeText={text => setPreferences(text)}
-            type="default"
-            showBorder
-            inputColor="#F5F5F5"
-            labelColor="#212121"
-            placeFontSize={16}
-            maxLength={50}
-          />
-
-          <View style={{ marginTop: wp(5), marginBottom: wp(5) }}>
-            <MainButton
-              title="Update Profile"
-              // onPress={() => navigation.navigate('AllSet')}
-              onPress={() => _editAPI()}
+              {image ? (
+                <TouchableOpacity
+                  onPress={upload}
+                  style={{ alignSelf: 'center' }}
+                >
+                  <Image
+                    source={image ? { uri: image } : images.avatarpic}
+                    style={{
+                      width: wp(22),
+                      height: wp(22),
+                      alignSelf: 'center',
+                      marginTop: wp(10),
+                      borderRadius: wp(15),
+                    }}
+                    resizeMode="contain"
+                  />
+                  <Image
+                    source={images.editprofile}
+                    style={{
+                      width: 19,
+                      height: 19,
+                      alignSelf: 'flex-end',
+                      marginTop: wp(-4),
+                      marginRight: wp(1),
+                    }}
+                    tintColor={Colors.mainColor}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={upload}
+                  style={{ alignSelf: 'center' }}
+                >
+                  <Image
+                    source={user.image ? { uri: user.image } : images.avatarpic}
+                    style={{
+                      width: wp(22),
+                      height: wp(22),
+                      alignSelf: 'center',
+                      marginTop: wp(10),
+                      borderRadius: wp(15),
+                    }}
+                    resizeMode="contain"
+                  />
+                  <Image
+                    source={images.editprofile}
+                    style={{
+                      width: 19,
+                      height: 19,
+                      alignSelf: 'flex-end',
+                      marginTop: wp(-4),
+                      marginRight: wp(1),
+                    }}
+                    tintColor={Colors.white}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            <Input1
+              // label="Username"
+              placeholder="Enter username"
+              value={username}
+              onChangeText={text => setUsername(text)}
+              type="default"
+              showBorder
+              inputColor="#00000066"
+              color="white"
+              labelColor="#212121"
+              placeFontSize={16}
+              maxLength={50}
             />
-          </View>
+            <Input1
+              // label="Email"
+              placeholder="Enter email"
+              value={email}
+              onChangeText={setEmail}
+              type="default"
+              showBorder
+              inputColor="#00000066"
+              color="white"
+              labelColor="#212121"
+              placeFontSize={16}
+              maxLength={50}
+              nonEditable
+            />
+            <Input1
+              // label="Goals"
+              placeholder="Enter goals"
+              value={goals}
+              onChangeText={text => setGoals(text)}
+              type="default"
+              // showBorder
+              inputColor="#00000066"
+              color="white"
+              labelColor="#212121"
+              placeFontSize={16}
+              maxLength={50}
+            />
+            <Input1
+              // label="Preferences"
+              placeholder="Enter preferences"
+              value={preferences}
+              onChangeText={text => setPreferences(text)}
+              type="default"
+              showBorder
+              inputColor="#00000066"
+              color="white"
+              labelColor="#212121"
+              placeFontSize={16}
+              maxLength={50}
+            />
+
+            <View style={{ marginTop: wp(35), marginBottom: wp(5) }}>
+              <MainButton
+                title="Update Profile"
+                // onPress={() => navigation.navigate('AllSet')}
+                onPress={() => _editAPI()}
+              />
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

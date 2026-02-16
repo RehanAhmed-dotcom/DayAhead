@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react';
 import persistStore from 'redux-persist/es/persistStore';
 import Store from './src/Redux/Store';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import messaging from '@react-native-firebase/messaging';
 import SplashScreen from './src/Screens/Auth/SplashScreen';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
@@ -187,6 +188,7 @@ const App = () => {
     >
       <Provider store={Store}>
         <PersistGate persistor={persistor}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <>
             {splashVisible ? (
               <SplashScreen />
@@ -199,6 +201,7 @@ const App = () => {
               </>
             )}
           </>
+          </GestureHandlerRootView>
         </PersistGate>
       </Provider>
     </StripeProvider>

@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
 import React, { useState } from 'react';
 import Input from '../../Components/Input/Index';
 import { Colors, fonts, images, styles } from '../../Constant/Index';
@@ -23,12 +25,27 @@ const AllSet = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
   return (
     <View style={styles.mainContainer}>
+      <ImageBackground  source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 35 : 0 }}
+      resizeMode="cover">
+
+    
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <TouchableOpacity
+                onPress={() =>  navigation.navigate('Login')}
+                style={{ marginTop: wp(Platform.OS=="ios"?6: 6),backgroundColor:'white',marginLeft:20, width:30,height:30,borderRadius:30,alignItems:'center',justifyContent:"center" ,}}
+              >
+                <Entypo
+                  name="chevron-thin-left"
+                  color={Colors.black}
+                  size={20}
+                />
+              </TouchableOpacity>
         <View
           style={{
             // marginTop: wp(7),
@@ -38,28 +55,29 @@ const AllSet = ({ navigation }) => {
             alignItems: 'center',
             elevation:4,
             width:wp(100),
-            height:wp(25),
-            backgroundColor:'#fff',
+            // height:wp(25),
+            // backgroundColor:'#fff',
             paddingHorizontal:wp(4),
-            paddingTop: wp(5)
+            paddingTop: wp(0)
           }}
         >
            <StatusBar
           translucent
           backgroundColor={'transparent'}
-          barStyle={'dark-content'}
+          barStyle={'light-content'}
         />
+     
           {/* <TouchableOpacity onPress={() =>}>
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity> */}
           <Text></Text>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 24,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
             }}
-          >All Set</Text>
+          >You’re All Set</Text>
           <Text></Text>
         </View>
           <View
@@ -69,7 +87,7 @@ const AllSet = ({ navigation }) => {
               alignSelf: 'center',
             }}
           >
-            <Text
+            {/* <Text
               style={{
                 fontSize: 20,
                 color: Colors.black,
@@ -77,26 +95,28 @@ const AllSet = ({ navigation }) => {
               }}
             >
               You’re All Set
-            </Text>
+            </Text> */}
           </View>
           <View>
             <Image
-              source={require('../../Assets/completesub.png')}
+              source={require('../../Assets/Complete.png')}
               resizeMode="contain"
-              style={{ width: wp(70), height: wp(90), alignSelf: 'center' }}
+              style={{ width: wp(70),borderRadius:10, height: hp(30),backgroundColor:"#BD2BAF15", alignSelf: 'center' }}
             />
           </View>
           <Text
             style={{
               fontSize: 14,
-              color: '#000',
+              color: 'white',
+              marginTop:30,
               fontFamily: fonts.medium,
-              lineHeight: 18,
+              lineHeight: 16,
               textAlign: 'center',
             }}
           >
-            You password has been successfully {'\n'}
-            updated
+           Your account has been created
+          {'\n'}
+          successfully 
           </Text>
           <View
             style={{
@@ -106,12 +126,13 @@ const AllSet = ({ navigation }) => {
             }}
           >
             <MainButton
-              title="Go To Home"
+              title="Go To Login"
               onPress={() => navigation.navigate('Login')}
             />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      </ImageBackground>
     </View>
   );
 };

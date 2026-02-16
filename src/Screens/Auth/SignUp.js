@@ -61,6 +61,7 @@ const SignUp = ({ navigation }) => {
         '365885584898-aeden87h6iaukq6psj3kbvd6jnonk4e5.apps.googleusercontent.com',
       iosClientId:
         '365885584898-o29d2kn3ebbh6dejmcdqqcvsf3jgsbua.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
     });
   }, []);
 
@@ -126,7 +127,7 @@ const SignUp = ({ navigation }) => {
     ]).start();
   }, []);
 
-  const upload = async (setFieldValue) => {
+  const upload = async setFieldValue => {
     try {
       const image = await ImageCropPicker.openPicker({
         width: 400,
@@ -161,25 +162,37 @@ const SignUp = ({ navigation }) => {
       .required('Please confirm your password'),
   });
 
-  const socialRegisterApi = (userData) => {
+  const socialRegisterApi = userData => {
+    const tz = Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone ?? 'UTC';
     const formdata = new FormData();
     formdata.append('name', `${userData.givenName}`);
     formdata.append('socialLogin', 1);
     formdata.append('email', userData.email);
     formdata.append('password', userData.email);
     formdata.append('password_confirmation', userData.email);
+    formdata.append('time_zone', tz);
+    if (userData?.photo) {
+      formdata.append('image', {
+        uri: userData.photo,
+        type: 'image/jpeg',
+        name: `image${new Date()}.jpg`,
+      });
+    }
 
     setIsLoading(true);
     PostAPiwithToken({ url: 'register' }, formdata)
-      .then((res) => {
+      .then(res => {
         setIsLoading(false);
         if (res.status === 'success') {
           dispatch(setUser(res.userdata));
         } else {
-          Alert.alert('Error', res.message?.email ? 'Email already exist' : 'error');
+          Alert.alert(
+            'Error',
+            res.message?.email ? 'Email already exist' : 'error',
+          );
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setIsLoading(false);
       });
   };
@@ -190,7 +203,7 @@ const SignUp = ({ navigation }) => {
     formdata.append('password', password);
     setIsLoading(true);
     PostAPiwithToken({ url: 'login' }, formdata)
-      .then((res) => {
+      .then(res => {
         setIsLoading(false);
         if (res.status === 'success') {
           dispatch(setUser(res.userdata));
@@ -198,17 +211,17 @@ const SignUp = ({ navigation }) => {
           Alert.alert('Error', res.message);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setIsLoading(false);
       });
   };
 
-  const socialFunction = (user) => {
+  const socialFunction = user => {
     setIsLoading(true);
     const formdata = new FormData();
     formdata.append('email', user?.email);
     PostAPiwithFrom({ url: 'google-login' }, formdata)
-      .then((res) => {
+      .then(res => {
         if (res.status === 'success') {
           if (res.login === 0) {
             socialRegisterApi(user);
@@ -216,14 +229,17 @@ const SignUp = ({ navigation }) => {
             loginApi1(user?.email, user?.email);
           } else {
             setIsLoading(false);
-            Alert.alert('Error', 'The email address already exists. Please sign in with your password.');
+            Alert.alert(
+              'Error',
+              'The email address already exists. Please sign in with your password.',
+            );
           }
         } else {
           setIsLoading(false);
           Alert.alert('Error', res.message);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setIsLoading(false);
       });
   };
@@ -258,7 +274,7 @@ const SignUp = ({ navigation }) => {
 
     setIsLoading(true);
     PostAPiwithToken({ url: 'register' }, formdata)
-      .then((res) => {
+      .then(res => {
         setIsLoading(false);
         if (res.status === 'success') {
           Toast.show({
@@ -277,7 +293,7 @@ const SignUp = ({ navigation }) => {
           });
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setIsLoading(false);
       });
   };
@@ -294,17 +310,34 @@ const SignUp = ({ navigation }) => {
         image: '',
       }}
       validateOnMount={true}
-      onSubmit={(values) =>
-        _registerAPI(values.username, values.email, values.password, values.repassword, values.image)
+      onSubmit={values =>
+        _registerAPI(
+          values.username,
+          values.email,
+          values.password,
+          values.repassword,
+          values.image,
+        )
       }
       validationSchema={_validationSchema}
     >
-      {({ handleChange, handleBlur, handleSubmit, values, touched, errors, setFieldValue }) => (
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        touched,
+        errors,
+        setFieldValue,
+      }) => (
         <ImageBackground
-          source={images.mySplash3}
+          source={images.mainImage}
           style={[
             styles.mainContainer,
-            { paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? top : 20 },
+            {
+              paddingHorizontal: 20,
+              paddingTop: Platform.OS === 'ios' ? top : 20,
+            },
           ]}
           resizeMode="cover"
         >
@@ -316,7 +349,11 @@ const SignUp = ({ navigation }) => {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
           >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-              <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+              <StatusBar
+                translucent
+                backgroundColor="transparent"
+                barStyle="light-content"
+              />
 
               {/* Animated Title Section */}
               <Animated.View
@@ -328,14 +365,15 @@ const SignUp = ({ navigation }) => {
               >
                 <Text
                   style={{
-                    fontSize: 20,
+                    fontSize: 30,
                     color: Colors.white,
+                    textAlign: 'center',
                     fontFamily: fonts.bold,
                   }}
                 >
                   Register To Continue
                 </Text>
-                <Animated.View style={{ opacity: subtitleOpacity }}>
+                {/* <Animated.View style={{ opacity: subtitleOpacity }}>
                   <Text
                     style={{
                       fontSize: 14,
@@ -345,7 +383,7 @@ const SignUp = ({ navigation }) => {
                   >
                     Register your account for better experience
                   </Text>
-                </Animated.View>
+                </Animated.View> */}
               </Animated.View>
 
               {/* Enhanced Animated Avatar */}
@@ -359,7 +397,9 @@ const SignUp = ({ navigation }) => {
               >
                 <TouchableOpacity onPress={() => upload(setFieldValue)}>
                   <Image
-                    source={values.image ? { uri: values.image } : images.avatarpic}
+                    source={
+                      values.image ? { uri: values.image } : images.avatarpic
+                    }
                     style={{
                       width: wp(30),
                       height: wp(30),
@@ -385,11 +425,12 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor="white"
                   style={{
                     fontSize: 14,
+                    height: 46,
                     color: Colors.white,
-                    borderBottomWidth: 1,
-                    borderBottomColor: Colors.white,
+                    borderRadius: 10,
+                    paddingHorizontal: 20,
                     marginTop: wp(10),
-                    backgroundColor: 'transparent',
+                    backgroundColor: '#00000066',
                   }}
                 />
                 {errors.username && touched.username && (
@@ -404,11 +445,12 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor="white"
                   style={{
                     fontSize: 14,
+                    height: 46,
                     color: Colors.white,
-                    borderBottomWidth: 1,
-                    borderBottomColor: Colors.white,
-                    marginTop: wp(6),
-                    backgroundColor: 'transparent',
+                    borderRadius: 10,
+                    paddingHorizontal: 20,
+                    marginTop: wp(5),
+                    backgroundColor: '#00000066',
                   }}
                 />
                 {errors.email && touched.email && (
@@ -418,12 +460,13 @@ const SignUp = ({ navigation }) => {
                 <View
                   style={{
                     flexDirection: 'row',
+                    height: 46,
+                    paddingHorizontal: 20,
+                    borderRadius: 10,
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderBottomWidth: 1,
-                    borderBottomColor: Colors.white,
                     marginTop: wp(5),
-                    backgroundColor: 'transparent',
+                    backgroundColor: '#00000066',
                   }}
                 >
                   <TextInput
@@ -450,12 +493,13 @@ const SignUp = ({ navigation }) => {
                 <View
                   style={{
                     flexDirection: 'row',
+                    height: 46,
+                    paddingHorizontal: 20,
+                    borderRadius: 10,
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderBottomWidth: 1,
-                    borderBottomColor: Colors.white,
                     marginTop: wp(5),
-                    backgroundColor: 'transparent',
+                    backgroundColor: '#00000066',
                   }}
                 >
                   <TextInput
@@ -481,7 +525,48 @@ const SignUp = ({ navigation }) => {
 
                 <View
                   style={{
-                    marginTop: wp(8),
+                    marginTop: wp(25),
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                    marginBottom: wp(5),
+                  }}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.btnView,
+                      { backgroundColor: Colors.mainColor, width: wp(70) },
+                    ]}
+                    onPress={handleSubmit}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.titleText, { color: Colors.white }]}>
+                      Sign Up
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={signIn}
+                    style={{
+                      width: wp(15),
+                      alignSelf: 'center',
+                      borderWidth: 1,
+                      borderColor: Colors.white,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: wp(3),
+                      height: wp(13),
+                    }}
+                  >
+                    <Image
+                      source={images.google}
+                      resizeMode="contain"
+                      style={{ width: wp(7), height: wp(7) }}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    marginTop: wp(2),
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -496,31 +581,22 @@ const SignUp = ({ navigation }) => {
                   >
                     Already have an account?
                   </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Login')}
+                  >
                     <Text
                       style={{
-                        color: Colors.mainColor,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                         fontSize: 14,
                         marginLeft: 5,
                       }}
                     >
-                      Log In
+                      Sign In
                     </Text>
                   </TouchableOpacity>
                 </View>
-
-                <View style={{ marginTop: wp(5), marginBottom: wp(5) }}>
-                  <TouchableOpacity
-                    style={[styles.btnView, { backgroundColor: Colors.white }]}
-                    onPress={handleSubmit}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[styles.titleText, { color: Colors.black }]}>Sign Up</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={signIn}
                   style={{
                     flexDirection: 'row',
@@ -543,7 +619,7 @@ const SignUp = ({ navigation }) => {
                   <Text style={{ color: Colors.white, fontSize: 16, fontFamily: fonts.bold }}>
                     Google
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </Animated.View>
             </ScrollView>
           </KeyboardAvoidingView>

@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Input from '../../Components/Input/Index';
@@ -90,8 +91,11 @@ const Verify = ({ navigation, route }) => {
   const { top } = useSafeAreaInsets();
   return (
     <View
-      style={[styles.mainContainer, { paddingHorizontal: 20, paddingTop:Platform.OS=='ios'?top: 20 }]}
+      style={[styles.mainContainer, { paddingHorizontal: 0, paddingTop:Platform.OS=='ios'?0: 20 }]}
     >
+      <ImageBackground source={require('../../Assets/CodePic.png')} style={{flex:1,paddingHorizontal:20,}}>
+
+     
       {isloading && <Loader />}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -102,19 +106,19 @@ const Verify = ({ navigation, route }) => {
           <StatusBar
             translucent
             backgroundColor={'transparent'}
-            barStyle={'dark-content'}
+            barStyle={'light-content'}
           />
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={{ marginTop: wp(6) }}
+            style={{ marginTop: wp(6),backgroundColor:"white" ,marginTop:wp(13),width:30,height:30,alignItems:"center",justifyContent:"center",borderRadius:30}}
           >
             <Entypo name="chevron-thin-left" color={Colors.black} size={20} />
           </TouchableOpacity>
           <View style={{ marginTop: wp(10) }}>
             <Text
               style={{
-                fontSize: 20,
-                color: Colors.black,
+                fontSize: 26,
+                color: Colors.white,
                 fontFamily: fonts.bold,
               }}
             >
@@ -123,7 +127,8 @@ const Verify = ({ navigation, route }) => {
             <Text
               style={{
                 fontSize: 14,
-                color: '#616161',
+                color: 'white',
+                marginTop:10,
                 fontFamily: fonts.medium,
                 lineHeight: 20,
               }}
@@ -162,6 +167,7 @@ const Verify = ({ navigation, route }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      </ImageBackground>
     </View>
   );
 };

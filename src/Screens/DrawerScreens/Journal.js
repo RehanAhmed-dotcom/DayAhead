@@ -58,7 +58,7 @@ const Journal = ({ navigation }) => {
           height: 118,
           borderWidth: isSelected ? 0 : 0.5,
           borderColor: '#E9F1FF',
-          elevation: isSelected ? 0 : 1,
+          // elevation: isSelected ? 0 : 1,
         }}
       >
         <Text
@@ -121,7 +121,7 @@ const Journal = ({ navigation }) => {
   return (
     <ImageBackground
       source={images.mainbackground}
-      style={{ flex: 1,paddingTop:Platform.OS === 'ios' ?40: 20, }}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 40 : 20 }}
       resizeMode="cover"
     >
       <KeyboardAvoidingView
@@ -162,11 +162,16 @@ const Journal = ({ navigation }) => {
           >
             Journal
           </Text>
-          <TouchableOpacity onPress={()=>navigation.navigate('JnlOnboard1')} style={{
-            // width:28
-             }} >
-            <Text style={{fontSize:14,color:Colors.white}}>Onboard</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('JnlOnboard1')}
+            style={
+              {
+                // width:28
+              }
+            }
+          >
+            <Text style={{ fontSize: 14, color: Colors.white }}>Onboard</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -219,7 +224,7 @@ const Journal = ({ navigation }) => {
               borderWidth: 0.5,
               borderColor: '#E9F1FF',
               borderRadius: wp(3),
-              
+
               // elevation: 1,
             }}
             scrollToOnSetSelectedDate={true}
@@ -388,11 +393,11 @@ const Journal = ({ navigation }) => {
                         borderRadius: wp(2),
                         backgroundColor: Colors.white,
                         marginBottom: wp(4),
-                        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
+                        // elevation: 2,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 4,
                         paddingHorizontal: wp(2),
                         marginLeft: wp(1),
                         paddingVertical: wp(3),

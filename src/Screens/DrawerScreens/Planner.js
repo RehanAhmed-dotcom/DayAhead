@@ -361,11 +361,11 @@ const Planner = ({ navigation }) => {
       </Text>
     </View>
   );
-const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
       source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?30: 0,}}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 30 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -373,7 +373,7 @@ const {top}=useSafeAreaInsets()
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-                 <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -385,22 +385,30 @@ const {top}=useSafeAreaInsets()
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-           
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="dark-content"
+          />
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
+            <Image
+              source={images.menuIcon}
+              style={{ width: 26, height: 26 }}
+              tintColor="black"
+              resizeMode="contain"
+            />
           </TouchableOpacity>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
               color: Colors.black,
-              marginRight:wp(5)
+              marginRight: wp(5),
             }}
           >
             Planner
@@ -815,7 +823,7 @@ const {top}=useSafeAreaInsets()
                             backgroundColor: 'white',
                             borderRadius: 16,
                             elevation: 3,
-                           
+
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 4 },
                             shadowOpacity: 0.2,
@@ -933,16 +941,16 @@ const {top}=useSafeAreaInsets()
                     alignItems: 'center',
                     alignSelf: 'center',
                     elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.2,
                     shadowRadius: 4,
                     borderWidth: 1,
-                    borderColor:Colors.mainColor,
+                    borderColor: Colors.mainColor,
                     marginTop: wp(4),
                   }}
                 >

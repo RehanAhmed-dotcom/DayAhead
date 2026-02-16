@@ -1,10 +1,14 @@
-import { Text, View, Modal, TouchableOpacity, ImageBackground } from 'react-native';
+import {
+  Text,
+  View,
+  Modal,
+  TouchableOpacity,
+  ImageBackground,
+} from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Colors, styles, fonts } from '../Constant/Index';
-import {
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
+import { Colors, styles, fonts, images } from '../Constant/Index';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import CustomDrawer from './CustomDrawer';
 import IndexBottom from '../BottomNav/IndexBottom';
 import SnapAlarm from '../Screens/DrawerScreens/SnapAlarm';
@@ -24,11 +28,14 @@ import MyReminder from '../Screens/DrawerScreens/MyReminder';
 import { useSelector } from 'react-redux';
 import { AllGetAPI } from '../Components/ApiRoot';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import Profile from '../Screens/BottomScreens/Profile';
 
 const IndexDrawer = () => {
   const user = useSelector(state => state.user.user);
-  console.log('my user ddatt',JSON.stringify(user))
-  const OnboardStatus = useSelector(state => state.onboarding.jnlBoardingStatus);
+  // console.log('my user ddatt',JSON.stringify(user))
+  const OnboardStatus = useSelector(
+    state => state.onboarding.jnlBoardingStatus,
+  );
   const [mySubscription, setmySubscription] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -38,7 +45,7 @@ const IndexDrawer = () => {
   const CheckSubscription = () => {
     AllGetAPI({ url: 'check-subscription', Token: user?.api_token })
       .then(res => {
-        console.log('check subscription', JSON.stringify(res));
+        // console.log('check subscription', JSON.stringify(res));
         setmySubscription(res.subscription || 0);
       })
       .catch(err => console.log('api error notes', err));
@@ -52,8 +59,8 @@ const IndexDrawer = () => {
 
   const [isTrialActive, setIsTrialActive] = useState(true);
 
-  console.log('check subscription', JSON.stringify(isTrialActive));
-  
+  // console.log('check subscription', JSON.stringify(isTrialActive));
+
   console.log('mytrail', isTrialActive);
   const checkTrialPeriod = () => {
     if (user?.created_at) {
@@ -72,13 +79,13 @@ const IndexDrawer = () => {
     checkTrialPeriod();
   }, []);
 
-const modalClose=()=>{
-setModalVisible(false);
-// navigation.closeDrawer
-navigation.navigate('IndexDrawer', {
-  screen: 'IndexBottom'})
-
-}
+  const modalClose = () => {
+    setModalVisible(false);
+    // navigation.closeDrawer
+    navigation.navigate('IndexDrawer', {
+      screen: 'IndexBottom',
+    });
+  };
 
   return (
     <>
@@ -86,15 +93,14 @@ navigation.navigate('IndexDrawer', {
         drawerContent={props => <CustomDrawer {...props} />}
         initialRouteName="IndexBottom"
         screenOptions={{
-          drawerActiveBackgroundColor: Colors.white,
-         
-          drawerActiveTintColor: Colors.buttoncolor,
-          drawerInactiveTintColor: Colors.buttoncolor,
-          drawerItemStyle: { flex: 1, activeOpacity: 0.8,borderRadius:wp(3) },
+          drawerActiveBackgroundColor: 'transparent',
+          // drawerActiveTintColor: Colors.buttoncolor,
+          // drawerInactiveTintColor: Colors.buttoncolor,
+          drawerItemStyle: { flex: 1, activeOpacity: 0.8, borderRadius: wp(3) },
           headerShown: false,
-          drawerLabelStyle: { fontSize: 16,},
+          drawerLabelStyle: { fontSize: 16 },
           drawerStyle: {
-            backgroundColor: Colors.lightgreen,
+            // backgroundColor: Colors.lightgreen,
             width: 220,
             // borderTopRightRadius: wp(8),
             // borderBottomRightRadius: wp(8),
@@ -105,6 +111,14 @@ navigation.navigate('IndexDrawer', {
         <Drawer.Screen
           name="IndexBottom"
           component={IndexBottom}
+          listeners={({ navigation }) => ({
+            drawerItemPress: e => {
+              e.preventDefault(); // prevent default drawer behavior
+              navigation.navigate('IndexBottom', {
+                screen: 'Home',
+              });
+            },
+          })}
           options={{
             drawerLabel: '',
             drawerIcon: ({ focused }) => (
@@ -114,15 +128,31 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                {/* <TouchableOpacity onPress={()=>navigation.navigate('IndexBottom', {
+  screen: 'Home',
+})}> */}
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
-                      styles.screenname,
+                      // styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -130,6 +160,7 @@ navigation.navigate('IndexDrawer', {
                     Home
                   </Text>
                 </ImageBackground>
+                {/* </TouchableOpacity> */}
               </View>
             ),
           }}
@@ -147,15 +178,28 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -168,7 +212,7 @@ navigation.navigate('IndexDrawer', {
           }}
         />
 
-        <Drawer.Screen
+        {/* <Drawer.Screen
           name="Planner"
           component={Planner}
           options={{
@@ -180,15 +224,28 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -199,8 +256,8 @@ navigation.navigate('IndexDrawer', {
               </View>
             ),
           }}
-        />
-   <Drawer.Screen
+        /> */}
+        {/* <Drawer.Screen
           name="MyNotes"
           component={MyNotes}
           options={{
@@ -212,27 +269,47 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
                   >
-                   My Notes
+                    My Notes
                   </Text>
                 </ImageBackground>
               </View>
             ),
           }}
         />
-           <Drawer.Screen
+        <Drawer.Screen
+          name="Account"
+          component={Profile}
+          options={{
+            drawerItemStyle: { display: 'none' },
+          }}
+        />
+        <Drawer.Screen
           name="MyReminder"
           component={MyReminder}
           options={{
@@ -244,58 +321,40 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
                   >
-                   My Reminders
+                    My Reminders
                   </Text>
                 </ImageBackground>
               </View>
             ),
           }}
         />
-        <Drawer.Screen
-          name="AboutUs"
-          component={AboutUs}
-          options={{
-            drawerLabel: '',
-            drawerIcon: ({ focused }) => (
-              <View
-                style={{
-                  borderBottomWidth: focused ? 0 : 1,
-                  borderBottomColor: '#EAEAEA',
-                  paddingBottom: wp(3),
-                  width: wp(40),
-                 alignItems: 'center'
-                }}
-              >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
-                  <Text
-                    style={[
-                      styles.screenname,
-                      {
-                        color: focused ? Colors.white : Colors.black,
-                        fontFamily: fonts.bold,
-                      },
-                    ]}
-                  >
-                    About Us
-                  </Text>
-                </ImageBackground>
-              </View>
-            ),
-          }}
-        />
+        */}
 
         <Drawer.Screen
           name="Communities"
@@ -309,27 +368,84 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
                   >
-                    Communities
+                    Community
                   </Text>
                 </ImageBackground>
               </View>
             ),
           }}
         />
-
+        {/* <Drawer.Screen
+          name="AboutUs"
+          component={AboutUs}
+          options={{
+            drawerLabel: '',
+            drawerIcon: ({ focused }) => (
+              <View
+                style={{
+                  borderBottomWidth: focused ? 0 : 1,
+                  borderBottomColor: '#EAEAEA',
+                  paddingBottom: wp(3),
+                  width: wp(40),
+                  alignItems: 'center',
+                }}
+              >
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.screenname,
+                      {
+                        color: Colors.white,
+                        fontFamily: fonts.bold,
+                      },
+                    ]}
+                  >
+                    About Us
+                  </Text>
+                </ImageBackground>
+              </View>
+            ),
+          }}
+        /> */}
         {/* <Drawer.Screen
           name="Notification"
           component={Notification}
@@ -349,7 +465,7 @@ navigation.navigate('IndexDrawer', {
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.mainColor : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -363,7 +479,9 @@ navigation.navigate('IndexDrawer', {
         /> */}
 
         {/* Journal */}
-        {OnboardStatus === false && mySubscription === 0 && isTrialActive === true   ? (
+        {OnboardStatus === false &&
+        mySubscription === 0 &&
+        isTrialActive === true ? (
           <Drawer.Screen
             name="JnlOnboard1"
             component={JnlOnboard1}
@@ -376,7 +494,7 @@ navigation.navigate('IndexDrawer', {
                     borderBottomColor: '#EAEAEA',
                     paddingBottom: wp(3),
                     width: wp(40),
-                    alignItems:'center'
+                    alignItems: 'center',
                   }}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -384,19 +502,19 @@ navigation.navigate('IndexDrawer', {
                       style={[
                         styles.screenname,
                         {
-                          color: focused ? Colors.mainColor : Colors.black,
+                          color: Colors.white,
                           fontFamily: fonts.bold,
                         },
                       ]}
                     >
-                      Journal
+                      Journals
                     </Text>
                   </View>
                 </View>
               ),
             }}
           />
-        ) : mySubscription === 1|| isTrialActive === true ? (
+        ) : mySubscription === 1 || isTrialActive === true ? (
           <Drawer.Screen
             name="MyJournal"
             component={MyJournal}
@@ -404,28 +522,43 @@ navigation.navigate('IndexDrawer', {
               drawerLabel: '',
               drawerIcon: ({ focused }) => (
                 <View
-                style={{
-                  borderBottomWidth: focused ? 0 : 1,
-                  borderBottomColor: '#EAEAEA',
-                  paddingBottom: wp(3),
-                  width: wp(40),
-                 alignItems: 'center'
-                }}
-              >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
-                  <Text
-                    style={[
-                      styles.screenname,
-                      {
-                        color: focused ? Colors.white : Colors.black,
-                        fontFamily: fonts.bold,
-                      },
-                    ]}
+                  style={{
+                    borderBottomWidth: focused ? 0 : 1,
+                    borderBottomColor: '#EAEAEA',
+                    paddingBottom: wp(3),
+                    width: wp(40),
+                    alignItems: 'center',
+                  }}
+                >
+                  <ImageBackground
+                    source={
+                      focused
+                        ? require('../Assets/loginbuttonback_2.png')
+                        : null
+                    }
+                    borderRadius={wp(3)}
+                    resizeMode="cover"
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: wp(40),
+                      height: focused ? wp(13) : null,
+                    }}
                   >
-                    Journal
-                  </Text>
-                </ImageBackground>
-              </View>
+                    <Text
+                      style={[
+                        styles.screenname,
+                        {
+                          color: Colors.white,
+                          fontFamily: fonts.bold,
+                        },
+                      ]}
+                    >
+                      Journals
+                    </Text>
+                  </ImageBackground>
+                </View>
               ),
             }}
           />
@@ -440,28 +573,43 @@ navigation.navigate('IndexDrawer', {
               drawerLabel: '',
               drawerIcon: ({ focused }) => (
                 <View
-                style={{
-                  borderBottomWidth: focused ? 0 : 1,
-                  borderBottomColor: '#EAEAEA',
-                  paddingBottom: wp(3),
-                  width: wp(40),
-                 alignItems: 'center'
-                }}
-              >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
-                  <Text
-                    style={[
-                      styles.screenname,
-                      {
-                        color: focused ? Colors.white : Colors.black,
-                        fontFamily: fonts.bold,
-                      },
-                    ]}
+                  style={{
+                    borderBottomWidth: focused ? 0 : 1,
+                    borderBottomColor: '#EAEAEA',
+                    paddingBottom: wp(3),
+                    width: wp(40),
+                    alignItems: 'center',
+                  }}
+                >
+                  <ImageBackground
+                    source={
+                      focused
+                        ? require('../Assets/loginbuttonback_2.png')
+                        : null
+                    }
+                    borderRadius={wp(3)}
+                    resizeMode="cover"
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: wp(40),
+                      height: focused ? wp(13) : null,
+                    }}
                   >
-                    Journal
-                  </Text>
-                </ImageBackground>
-              </View>
+                    <Text
+                      style={[
+                        styles.screenname,
+                        {
+                          color: Colors.white,
+                          fontFamily: fonts.bold,
+                        },
+                      ]}
+                    >
+                      Journals
+                    </Text>
+                  </ImageBackground>
+                </View>
               ),
             }}
           />
@@ -476,28 +624,43 @@ navigation.navigate('IndexDrawer', {
               drawerLabel: '',
               drawerIcon: ({ focused }) => (
                 <View
-                style={{
-                  borderBottomWidth: focused ? 0 : 1,
-                  borderBottomColor: '#EAEAEA',
-                  paddingBottom: wp(3),
-                  width: wp(40),
-                  alignItems:'center'
-                }}
-              >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
-                  <Text
-                    style={[
-                      styles.screenname,
-                      {
-                        color: focused ? Colors.white : Colors.black,
-                        fontFamily: fonts.bold,
-                      },
-                    ]}
+                  style={{
+                    borderBottomWidth: focused ? 0 : 1,
+                    borderBottomColor: '#EAEAEA',
+                    paddingBottom: wp(3),
+                    width: wp(40),
+                    alignItems: 'center',
+                  }}
+                >
+                  <ImageBackground
+                    source={
+                      focused
+                        ? require('../Assets/loginbuttonback_2.png')
+                        : null
+                    }
+                    borderRadius={wp(3)}
+                    resizeMode="cover"
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: wp(40),
+                      height: focused ? wp(13) : null,
+                    }}
                   >
-                    Stats
-                  </Text>
-                </ImageBackground>
-              </View>
+                    <Text
+                      style={[
+                        styles.screenname,
+                        {
+                          color: Colors.white,
+                          fontFamily: fonts.bold,
+                        },
+                      ]}
+                    >
+                      Stats
+                    </Text>
+                  </ImageBackground>
+                </View>
               ),
             }}
           />
@@ -517,7 +680,7 @@ navigation.navigate('IndexDrawer', {
                     borderBottomColor: '#EAEAEA',
                     paddingBottom: wp(3),
                     width: wp(40),
-                    alignItems:'center'
+                    alignItems: 'center',
                   }}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -525,7 +688,7 @@ navigation.navigate('IndexDrawer', {
                       style={[
                         styles.screenname,
                         {
-                          color: focused ? Colors.mainColor : Colors.black,
+                          color: Colors.white,
                           fontFamily: fonts.bold,
                         },
                       ]}
@@ -539,7 +702,7 @@ navigation.navigate('IndexDrawer', {
           />
         )}
 
-        <Drawer.Screen
+        {/* <Drawer.Screen
           name="Routines"
           component={Routines}
           options={{
@@ -551,15 +714,28 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -570,7 +746,7 @@ navigation.navigate('IndexDrawer', {
               </View>
             ),
           }}
-        />
+        /> */}
 
         <Drawer.Screen
           name="Podcast"
@@ -584,15 +760,28 @@ navigation.navigate('IndexDrawer', {
                   borderBottomColor: '#EAEAEA',
                   paddingBottom: wp(3),
                   width: wp(40),
-                 alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ImageBackground source={focused ? require('../Assets/loginbuttonback.png') : null} borderRadius={wp(3)} resizeMode='cover' style={{ flexDirection: 'row', justifyContent:'center', alignItems: 'center', width:  wp(40), height: focused ? wp(13) : null }}>
+                <ImageBackground
+                  source={
+                    focused ? require('../Assets/loginbuttonback_2.png') : null
+                  }
+                  borderRadius={wp(3)}
+                  resizeMode="cover"
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: wp(40),
+                    height: focused ? wp(13) : null,
+                  }}
+                >
                   <Text
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.white : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -624,7 +813,7 @@ navigation.navigate('IndexDrawer', {
                     style={[
                       styles.screenname,
                       {
-                        color: focused ? Colors.mainColor : Colors.black,
+                        color: Colors.white,
                         fontFamily: fonts.bold,
                       },
                     ]}
@@ -645,10 +834,11 @@ navigation.navigate('IndexDrawer', {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View
+        <ImageBackground
+          source={images.mainImage}
           style={{
             flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            // backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -656,7 +846,7 @@ navigation.navigate('IndexDrawer', {
           <View
             style={{
               width: wp(80),
-              backgroundColor: 'white',
+              backgroundColor: '#00000033',
               borderRadius: 15,
               padding: 30,
               alignItems: 'center',
@@ -672,12 +862,13 @@ navigation.navigate('IndexDrawer', {
                 fontSize: 16,
                 textAlign: 'center',
                 marginBottom: 30,
-                color: '#333',
-                lineHeight:22,
+                color: 'white',
+                lineHeight: 22,
                 fontFamily: fonts.medium || 'System',
               }}
             >
-          Please subscribe to one of our plans to continue using this service.
+              Please subscribe to one of our plans to continue using this
+              service.
             </Text>
 
             <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -685,24 +876,23 @@ navigation.navigate('IndexDrawer', {
                 style={{
                   flex: 1,
                   padding: 12,
-                  backgroundColor: '#f0f0f0',
+                  backgroundColor: '#BD2BAF33',
                   borderRadius: 10,
                   marginRight: 10,
                   alignItems: 'center',
                 }}
-                onPress={() => { 
+                onPress={() => {
                   // navigation.navigate('IndexDrawer', {
                   // screen: 'IndexBottom',
                   // params: { screen: 'Home' }}), setModalVisible(false)
-                  modalClose()
+                  modalClose();
                 }}
               >
                 <Text
                   style={{
                     fontSize: 16,
                     fontFamily: fonts.bold,
-                    color: '#000',
-                    
+                    color: 'white',
                   }}
                 >
                   Cancel
@@ -735,7 +925,7 @@ navigation.navigate('IndexDrawer', {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </ImageBackground>
       </Modal>
     </>
   );

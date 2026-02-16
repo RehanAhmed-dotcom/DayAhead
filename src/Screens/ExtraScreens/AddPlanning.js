@@ -174,7 +174,22 @@ const AddPlanning = ({ navigation }) => {
       });
     }
   };
-
+  const isPastTime = (time) => {
+    const now = new Date();
+   
+    // Create date for today with slot time
+    const slotTime = new Date();
+   
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
+   
+    if (modifier === 'PM' && hours !== 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+   
+    slotTime.setHours(hours, minutes, 0, 0);
+   
+    return slotTime < now;
+  };
   // Custom Calendar Components
   const CustomDayComponent = ({ date, selected }) => {
     const isSelected = selected;
@@ -260,12 +275,12 @@ const AddPlanning = ({ navigation }) => {
   const renderTimeRow = ({ item }) => {
     const planObj = selectedPlans[item.key];
     const planName = planObj?.name;
-
+const disabled= isPastTime(item.time);
     return (
       <View style={styles.addplanningView}>
-        <Text style={styles.timeStyle}>{item.time}</Text>
+        <Text style={[styles.timeStyle,{color:disabled?"grey":Colors.mainColor}]}>{item.time}</Text>
 
-        <TouchableOpacity onPress={() => openPlanModal(item.key)}>
+        <TouchableOpacity disabled={disabled} onPress={() => openPlanModal(item.key)}>
           {planName ? (
             <View
               style={{
@@ -288,7 +303,7 @@ const AddPlanning = ({ navigation }) => {
               </Text>
             </View>
           ) : (
-            <Text style={styles.routineTextStyle}>+ Add Routine</Text>
+            <Text style={[styles.routineTextStyle,{color:disabled?'grey':Colors.mainColor}]}>+ Add Routine</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -317,6 +332,7 @@ const AddPlanning = ({ navigation }) => {
                   transform: [{ translateX: translateXValue.value }],
               };
           });
+
 const {top}=useSafeAreaInsets()
   return (
     <ImageBackground

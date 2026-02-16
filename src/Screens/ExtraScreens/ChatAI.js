@@ -12,8 +12,20 @@ import {
   FlatList,
   ActivityIndicator,
   Dimensions,
+  PermissionsAndroid,
+  Alert,
+  Modal,
+  Button,
 } from 'react-native';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Sound, {
+  AudioEncoderAndroidType,
+  AudioSourceAndroidType,
+  AVEncoderAudioQualityIOSType,
+  AVEncodingOption,
+  RecordBackType,
+  PlayBackType,
+} from 'react-native-nitro-sound';
 import { Colors, fonts, images, styles } from '../../Constant/Index';
 import {
   widthPercentageToDP as wp,
@@ -29,6 +41,7 @@ import { AllGetAPI, PostAPiwithToken } from '../../Components/ApiRoot';
 import { OPEN_AI_KEY } from '../../Components/OpenAi_Key';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TranslatableText from '../../Components/customText/TranslatableText';
 
 const CREATION_KEYWORDS = {
   task: ['create task', 'add task', 'new task', 'make task'],
@@ -37,7 +50,12 @@ const CREATION_KEYWORDS = {
   plan: ['create plan', 'add plan', 'new plan', 'create planner'],
   meeting: ['create meeting', 'schedule meeting', 'add meeting', 'set meeting'],
   alarm: ['create alarm', 'set alarm', 'add alarm'],
-  community: ['create community', 'add community', 'new community', 'create group'],
+  community: [
+    'create community',
+    'add community',
+    'new community',
+    'create group',
+  ],
 };
 const MEMBER_PREVIEW_LIMIT = 6;
 const ALARM_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -59,21 +77,29 @@ const ChatAI = ({ navigation }) => {
   const [myTasks, setMyTasks] = useState([]);
   const [chatMembers, setChatMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRecordingModal, setShowRecordingModal] = useState(false);
   const flatListRef = useRef(null);
   const apiKey = OPEN_AI_KEY;
   const conversationContext = useRef([]).current;
   const screenHeight = Dimensions.get('window').height;
-
+  // console.log('apikey', apiKey);
   // Creation flow states
   const [creationContext, setCreationContext] = useState(null);
   const [creationStep, setCreationStep] = useState(0);
   const [collectedFields, setCollectedFields] = useState({});
+  const [isRecording, setIsRecording] = useState(false);
 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [recordTime, setRecordTime] = useState('00:00:00');
+  const [playTime, setPlayTime] = useState('00:00:00');
+  const [duration, setDuration] = useState('00:00:00');
+  const [audioPath, setAudioPath] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const CheckSubscription = () => {
     AllGetAPI({ url: 'check-subscription', Token: user?.api_token })
       .then(res => {
-        console.log('check subscription', JSON.stringify(res));
+        // console.log('check subscription', JSON.stringify(res));
         if (res.subscription === 0) {
           navigation.navigate('Subscription');
         }
@@ -84,7 +110,7 @@ const ChatAI = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      CheckSubscription();  
+      CheckSubscription();
     }, []),
   );
 
@@ -93,7 +119,108 @@ const ChatAI = ({ navigation }) => {
     setMessages(prev => [...prev, newUserMessage]);
     conversationContext.push({ role: 'user', content: text });
   };
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'android') return true;
 
+    try {
+      const permissions = [PermissionsAndroid.PERMISSIONS.RECORD_AUDIO];
+
+      if (Platform.Version >= 33) {
+        // permissions.push(PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO);
+      } else {
+        permissions.push(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+      }
+
+      const grants = await PermissionsAndroid.requestMultiple(permissions);
+
+      const denied = permissions.filter(
+        permission => grants[permission] !== PermissionsAndroid.RESULTS.GRANTED,
+      );
+
+      if (denied.length > 0) {
+        Alert.alert('Permissions denied', denied.join('\n'));
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  // Recording
+  const onStartRecord = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+    setIsLoading(true);
+    try {
+      const result = await Sound.startRecorder();
+      Sound.addRecordBackListener(e => {
+        setRecordTime(Sound.mmssss(Math.floor(e.currentPosition)));
+      });
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onStopRecord = async () => {
+    setIsLoading(true);
+    try {
+      const result = await Sound.stopRecorder();
+      Sound.removeRecordBackListener();
+      setIsRecording(false);
+      setAudioPath(result);
+      console.log(result);
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onStartPlay = async () => {
+    setIsLoading(true);
+    try {
+      const msg = await Sound.startPlayer(audioPath);
+      Sound.addPlayBackListener(e => {
+        setPlayTime(Sound.mmssss(Math.floor(e.currentPosition)));
+        setDuration(Sound.mmssss(Math.floor(e.duration)));
+      });
+
+      // Use the proper playback end listener
+      Sound.addPlaybackEndListener(e => {
+        console.log('Playback completed', e);
+        setIsPlaying(false);
+        setPlayTime('00:00:00');
+      });
+
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Failed to start playback:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onStopPlay = async () => {
+    setIsLoading(true);
+    try {
+      await Sound.stopPlayer();
+      Sound.removePlayBackListener();
+      Sound.removePlaybackEndListener();
+      setIsPlaying(false);
+      setPlayTime('00:00:00');
+      setDuration('00:00:00');
+    } catch (error) {
+      console.error('Failed to stop playback:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const appendBotMessage = text => {
     const newBotMessage = { type: 'bot', text };
     setMessages(prev => [...prev, newBotMessage]);
@@ -188,7 +315,7 @@ const ChatAI = ({ navigation }) => {
         return {
           success: false,
           error:
-            "I couldn't find any saved members. Please add friends first or say \"only me\".",
+            'I couldn\'t find any saved members. Please add friends first or say "only me".',
         };
       }
       return { success: true, value: { ids: [], label: trimmed } };
@@ -221,13 +348,14 @@ const ChatAI = ({ navigation }) => {
       return {
         success: allowEmpty && !requireKnownMember,
         value: { ids: [], label: trimmed },
-        error: allowEmpty && !requireKnownMember
-          ? null
-          : namesList
-          ? `I couldn't match those names. Try using one of these: ${namesList}${
-              chatMembers.length > MEMBER_PREVIEW_LIMIT ? ', ...' : ''
-            }.`
-          : "I couldn't match those names. You can say \"only me\" if it's just you.",
+        error:
+          allowEmpty && !requireKnownMember
+            ? null
+            : namesList
+            ? `I couldn't match those names. Try using one of these: ${namesList}${
+                chatMembers.length > MEMBER_PREVIEW_LIMIT ? ', ...' : ''
+              }.`
+            : 'I couldn\'t match those names. You can say "only me" if it\'s just you.',
       };
     }
 
@@ -318,7 +446,8 @@ const ChatAI = ({ navigation }) => {
               key: 'members',
               label: 'members',
               prompt: buildMemberPrompt('task', true),
-              transform: value => parseMemberAnswer(value, { allowEmpty: true }),
+              transform: value =>
+                parseMemberAnswer(value, { allowEmpty: true }),
             },
             {
               key: 'start_datetime',
@@ -389,7 +518,9 @@ const ChatAI = ({ navigation }) => {
               `• Start: ${data.start_datetime}\n` +
               `• End: ${data.end_datetime}\n` +
               `• Priority: ${data.priority}\n` +
-              (data.attachments ? `• Attachment note: ${data.attachments}\n` : '') +
+              (data.attachments
+                ? `• Attachment note: ${data.attachments}\n`
+                : '') +
               '\nCreating this task now...'
             );
           },
@@ -432,7 +563,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the start time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the start time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -447,7 +579,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the end time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the end time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -517,7 +650,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the start time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the start time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -531,7 +665,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the end time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the end time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -593,7 +728,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: match }
                   : {
                       success: false,
-                      error: 'Please choose a whole number of hours between 1 and 8.',
+                      error:
+                        'Please choose a whole number of hours between 1 and 8.',
                     };
               },
             },
@@ -621,7 +757,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the start time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the start time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -635,7 +772,8 @@ const ChatAI = ({ navigation }) => {
                   ? { success: true, value: normalized }
                   : {
                       success: false,
-                      error: 'Please provide the end time in hh:mm AM/PM format.',
+                      error:
+                        'Please provide the end time in hh:mm AM/PM format.',
                     };
               },
             },
@@ -709,7 +847,8 @@ const ChatAI = ({ navigation }) => {
               key: 'members',
               label: 'members',
               prompt: buildMemberPrompt('community', true),
-              transform: value => parseMemberAnswer(value, { allowEmpty: true }),
+              transform: value =>
+                parseMemberAnswer(value, { allowEmpty: true }),
             },
             {
               key: 'description',
@@ -729,7 +868,9 @@ const ChatAI = ({ navigation }) => {
             `• Title: ${data.title}\n` +
             `• Members: ${data.members?.label || 'Only you'}\n` +
             `• Description: ${data.description}\n` +
-            (data.attachments ? `• Attachment note: ${data.attachments}\n` : '') +
+            (data.attachments
+              ? `• Attachment note: ${data.attachments}\n`
+              : '') +
             '\nCreating this community now...',
           submit: handleCommunitySubmission,
         };
@@ -752,7 +893,12 @@ const ChatAI = ({ navigation }) => {
     appendBotMessage(firstPrompt);
   };
 
-  const runCreationApiCall = async ({ url, formdata, successText, onSuccess }) => {
+  const runCreationApiCall = async ({
+    url,
+    formdata,
+    successText,
+    onSuccess,
+  }) => {
     try {
       setIsLoading(true);
       const res = await PostAPiwithToken(
@@ -891,7 +1037,9 @@ const ChatAI = ({ navigation }) => {
 
     if (!trimmed && !field?.optional) {
       appendBotMessage(
-        `Please provide the ${field?.label || 'required detail'} so I can continue.`,
+        `Please provide the ${
+          field?.label || 'required detail'
+        } so I can continue.`,
       );
       return;
     }
@@ -1003,6 +1151,47 @@ const ChatAI = ({ navigation }) => {
         }, Status: ${task.status || 'Not set'})`;
       })
       .join('\n');
+  };
+  const sendAudioToAi = async () => {
+    if (!audioPath || audioPath.trim() === '') {
+      console.log('No audio file selected');
+      return;
+    }
+    setIsSending(true);
+    try {
+      const formData = new FormData();
+
+      formData.append('file', {
+        uri: audioPath,
+        type: 'audio/mp4', // mp4 container for your file
+        name: 'recording.mp4',
+      });
+
+      formData.append('model', 'gpt-4o-transcribe');
+
+      const response = await axios.post(
+        'https://api.openai.com/v1/audio/transcriptions',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`, // NEVER hardcode in production
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      sendMessage(response.data.text);
+      setShowRecordingModal(false);
+      setAudioPath('');
+      setRecordTime('00:00:00');
+      setPlayTime('00:00:00');
+      setDuration('00:00:00');
+      set;
+      console.log('AI Transcript:', response.data.text);
+    } catch (error) {
+      console.log('Error:', error.response?.data || error.message);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   // Send message to OpenAI
@@ -1176,7 +1365,7 @@ INSTRUCTIONS:
               width: 36,
               height: 36,
               borderRadius: 18,
-              backgroundColor: Colors.lightgreen,
+              backgroundColor: 'Colors.lightgreen',
               marginRight: wp(2),
               justifyContent: 'center',
               alignItems: 'center',
@@ -1194,7 +1383,7 @@ INSTRUCTIONS:
         <View
           style={{
             maxWidth: wp(72),
-            backgroundColor: isUser ? Colors.mainColor : Colors.white,
+            backgroundColor: isUser ? Colors.mainColor : '#0000008C',
             paddingHorizontal: wp(4),
             paddingVertical: wp(3.5),
             borderRadius: isUser ? wp(4) : wp(4),
@@ -1207,16 +1396,27 @@ INSTRUCTIONS:
             elevation: 3,
           }}
         >
-          <Text
+          <TranslatableText
+            targetLang="fr"
             style={{
               fontSize: 15,
               fontFamily: fonts.medium,
-              color: isUser ? Colors.white : Colors.black,
+              color: Colors.white,
               lineHeight: 22,
             }}
           >
             {item.text}
-          </Text>
+          </TranslatableText>
+          {/* <Text
+            style={{
+              fontSize: 15,
+              fontFamily: fonts.medium,
+              color: Colors.white,
+              lineHeight: 22,
+            }}
+          >
+            {item.text}
+          </Text> */}
         </View>
         {isUser && (
           <View
@@ -1229,7 +1429,7 @@ INSTRUCTIONS:
               justifyContent: 'center',
               alignItems: 'center',
               borderWidth: 2,
-              borderColor: Colors.white,
+              // borderColor: Colors.white,
             }}
           >
             <Text
@@ -1246,11 +1446,17 @@ INSTRUCTIONS:
       </View>
     );
   };
-  const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?30: 0, height: screenHeight }}>
+    <View
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === 'ios' ? 10 : 0,
+        height: screenHeight,
+      }}
+    >
       <ImageBackground
-        source={images.myallbackbg}
+        source={images.mainImage}
         style={{
           position: 'absolute',
           top: 0,
@@ -1258,7 +1464,7 @@ INSTRUCTIONS:
           right: 0,
           bottom: 0,
           width: '100%',
-          height: screenHeight,
+          height: '100%',
           zIndex: 0,
         }}
         resizeMode="cover"
@@ -1271,38 +1477,47 @@ INSTRUCTIONS:
         barStyle={'light-content'}
       />
 
-<View
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          // elevation: 4,
+          width: wp(100),
+          height: wp(25),
+          // backgroundColor: '#FAFAFA',
+          paddingHorizontal: wp(4),
+          paddingTop: wp(5),
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: 6 }, // push shadow down
+          // shadowOpacity: 0.2,
+          // shadowRadius: 3,
+        }}
+      >
+        <TouchableOpacity
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+            backgroundColor: 'white',
+            width: 30,
+            height: 30,
+            borderRadius: 30,
             alignItems: 'center',
-            elevation: 4,
-            width: wp(100),
-            height: wp(25),
-            backgroundColor: '#FAFAFA',
-            paddingHorizontal: wp(4),
-            paddingTop: wp(5),
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 }, // push shadow down
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
+            justifyContent: 'center',
           }}
+          onPress={() => navigation.goBack()}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-        <TouchableOpacity onPress={() => navigation.goBack()}>
           <AntDesign name="left" size={20} color={Colors.black} />
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
+          {/* <Image
             source={images.avatarpic}
             resizeMode="contain"
             style={{ width: 34, height: 34, borderRadius: 18 }}
-          />
+          /> */}
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               marginRight: wp(7),
             }}
           >
@@ -1318,7 +1533,7 @@ INSTRUCTIONS:
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         enabled
       >
-        <View style={{ flex: 1,marginTop:30, }}>
+        <View style={{ flex: 1, marginTop: 30 }}>
           <FlatList
             data={messages}
             renderItem={renderMessage}
@@ -1396,79 +1611,278 @@ INSTRUCTIONS:
               </View>
             </View>
           )}
-
-          <View
-            style={{
-              width: wp(92),
-              minHeight: wp(13),
-              borderRadius: wp(4),
-              backgroundColor: Colors.white,
-              alignSelf: 'center',
-              marginBottom: wp(4),
-              marginTop: wp(2),
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-              paddingHorizontal: wp(3),
-              paddingVertical: wp(2.5),
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.15,
-              shadowRadius: 8,
-              elevation: 5,
-              borderWidth: 1.5,
-              borderColor: Colors.lightgreen,
-            }}
-          >
-            <TextInput
-              style={{
-                flex: 1,
-                paddingHorizontal: wp(3),
-                color: Colors.black,
-                fontFamily: fonts.regular,
-                fontSize: 15,
-                maxHeight: wp(25),
-                paddingTop: wp(2),
-                paddingBottom: wp(1),
-              }}
-              multiline
-              placeholder="Ask me anything about your tasks or the app..."
-              placeholderTextColor={Colors.placeholder}
-              value={message}
-              onChangeText={text => setMessage(text)}
-              onSubmitEditing={e => {
-                if (!e.nativeEvent.shiftKey && message.trim()) {
-                  sendMessage();
-                }
-              }}
-              returnKeyType="send"
-              blurOnSubmit={false}
-            />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity
               onPress={() => {
-                if (message.trim() && !isLoading) {
-                  sendMessage();
-                }
+                setShowRecordingModal(true);
               }}
-              disabled={isLoading || !message.trim()}
+              disabled={isLoading}
               activeOpacity={0.7}
               style={{
-                width: wp(11),
-                height: wp(11),
-                borderRadius: wp(11) / 2,
-                backgroundColor: Colors.mainColor,
+                width: 40,
+                height: wp(13),
+                borderRadius: 12,
+                backgroundColor: '#BD2BAF1A',
+
                 justifyContent: 'center',
                 alignItems: 'center',
-                marginLeft: wp(2),
-                opacity: isLoading || !message.trim() ? 0.5 : 1,
+                marginHorizontal: wp(2),
+                opacity: isLoading ? 0.5 : 1,
                 shadowColor: Colors.mainColor,
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.3,
                 shadowRadius: 4,
-                elevation: 3,
+                // elevation: 3,
               }}
             >
-              <Ionicons name="send" size={20} color={Colors.white} />
+              <Ionicons
+                name={isRecording ? 'mic-off' : 'mic'}
+                size={30}
+                color={Colors.mainColor}
+              />
             </TouchableOpacity>
+            <Modal
+              visible={showRecordingModal}
+              transparent
+              animationType="fade"
+            >
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <View
+                  style={{
+                    width: '85%',
+                    backgroundColor: '#1e1e1e',
+                    padding: 20,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                  }}
+                >
+                  {/* Recording Timer */}
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 26,
+                      fontWeight: 'bold',
+                      marginBottom: 20,
+                    }}
+                  >
+                    {recordTime}
+                  </Text>
+
+                  {/* Record Button */}
+                  <View style={{ width: '100%', marginBottom: 20 }}>
+                    {/* <Button
+                      title={isRecording ? 'Stop Recording' : 'Start Recording'}
+                      onPress={() => {
+                        if (isRecording) {
+                          onStopRecord();
+                        } else {
+                          setAudioPath('');
+                          setRecordTime('00:00:00');
+                          onStartRecord();
+                        }
+                      }}
+                      disabled={isLoading}
+                      color={isRecording ? '#ff4d4d' : '#4CAF50'}
+                    /> */}
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (isRecording) {
+                          onStopRecord();
+                        } else {
+                          setAudioPath('');
+                          setRecordTime('00:00:00');
+                          onStartRecord();
+                        }
+                      }}
+                      style={{
+                        backgroundColor: Colors.mainColor,
+                        marginTop: 8,
+                        borderRadius: 12,
+                      }}
+                      disabled={isLoading}
+                    >
+                      <Text
+                        style={{
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: fonts.medium,
+                          textAlign: 'center',
+                          paddingVertical: 8,
+                        }}
+                      >
+                        {isRecording ? 'Stop Recording' : 'Start Recording'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Loading Indicator */}
+                  {isLoading && (
+                    <ActivityIndicator
+                      size="large"
+                      color="#ffffff"
+                      style={{ marginBottom: 15 }}
+                    />
+                  )}
+
+                  {/* Playback Section */}
+                  {audioPath !== '' && (
+                    <View
+                      style={{
+                        width: '100%',
+                        borderTopWidth: 1,
+                        borderTopColor: '#333',
+                        paddingTop: 15,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: '#ccc',
+                          fontSize: 16,
+                          marginBottom: 10,
+                        }}
+                      >
+                        {playTime} / {duration}
+                      </Text>
+
+                      <View style={{ width: '100%' }}>
+                        {/* <Button
+                          title={isPlaying ? 'Stop Playback' : 'Play Recording'}
+                          onPress={isPlaying ? onStopPlay : onStartPlay}
+                          disabled={!audioPath || isLoading}
+                          color={Colors.mainColor}
+                        /> */}
+                        <TouchableOpacity
+                          onPress={isPlaying ? onStopPlay : onStartPlay}
+                          style={{
+                            backgroundColor: Colors.mainColor,
+                            marginTop: 8,
+                            borderRadius: 12,
+                          }}
+                          disabled={!audioPath || isLoading}
+                        >
+                          <Text
+                            style={{
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: fonts.medium,
+                              textAlign: 'center',
+                              paddingVertical: 8,
+                            }}
+                          >
+                            {isPlaying ? 'Stop Playback' : 'Play Recording'}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={sendAudioToAi}
+                          style={{
+                            backgroundColor: Colors.mainColor,
+                            marginTop: 8,
+                            borderRadius: 12,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: fonts.medium,
+                              textAlign: 'center',
+                              paddingVertical: 8,
+                            }}
+                          >
+                            {isSending ? 'Sending...' : 'Submit to AI'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </Modal>
+
+            <View
+              style={{
+                width: '82%',
+                minHeight: wp(13),
+                borderRadius: wp(4),
+                backgroundColor: '#BD2BAF1A',
+                alignSelf: 'center',
+                marginBottom: wp(4),
+                marginTop: wp(2),
+                flexDirection: 'row',
+                alignItems: 'center',
+
+                paddingHorizontal: wp(3),
+                // paddingVertical: wp(2.5),
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 8,
+                // elevation: 5,
+                borderWidth: 1.5,
+                borderColor: Colors.mainColor,
+              }}
+            >
+              <TextInput
+                style={{
+                  flex: 1,
+                  paddingHorizontal: wp(3),
+                  color: Colors.white,
+                  fontFamily: fonts.regular,
+                  fontSize: 15,
+                  minHeight: 60,
+                  maxHeight: wp(25),
+                  // backgroundColor: 'red',
+                  // paddingTop: wp(2),
+                  // paddingBottom: wp(1),
+                }}
+                multiline
+                placeholder="Ask Ai to suggest you a better task"
+                placeholderTextColor={Colors.placeholder}
+                value={message}
+                onChangeText={text => setMessage(text)}
+                onSubmitEditing={e => {
+                  if (!e.nativeEvent.shiftKey && message.trim()) {
+                    sendMessage();
+                  }
+                }}
+                returnKeyType="send"
+                blurOnSubmit={false}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  if (message.trim() && !isLoading) {
+                    sendMessage();
+                  }
+                }}
+                disabled={isLoading || !message.trim()}
+                activeOpacity={0.7}
+                style={{
+                  width: wp(11),
+                  height: wp(11),
+                  borderRadius: wp(11) / 2,
+                  // backgroundColor: Colors.mainColor,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginLeft: wp(2),
+                  opacity: isLoading || !message.trim() ? 0.5 : 1,
+                  shadowColor: Colors.mainColor,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  // elevation: 3,
+                }}
+              >
+                <Ionicons name="send" size={20} color={Colors.mainColor} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>

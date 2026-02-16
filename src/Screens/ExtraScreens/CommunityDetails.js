@@ -23,9 +23,10 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// import MaterialIcons from 'react-native-vector-icons/MaterialDesignIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Progress from 'react-native-progress';
 import { AllGetAPI, PostAPiwithToken } from '../../Components/ApiRoot';
@@ -61,7 +62,7 @@ const CommunityDetails = ({ navigation, route }) => {
       .then(res => {
         setCommunityDetails(res.data || []);
         setPostComments(res?.data?.comments);
-        // console.log('my post details', JSON.stringify(res));
+        console.log('my post details', JSON.stringify(res));
       })
       .catch(err => {
         console.log('api error tasks', err);
@@ -113,7 +114,11 @@ const CommunityDetails = ({ navigation, route }) => {
   };
   const addReportApi = () => {
     if (!reporttitle.trim()) {
-      Toast.show({ type: 'error', text1: 'Error', text2: 'Reason is required' });
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Reason is required',
+      });
       return;
     }
     const formdata = new FormData();
@@ -158,7 +163,66 @@ const CommunityDetails = ({ navigation, route }) => {
 
   // State to control dropdown visibility
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const getCommunityPosts = () => {
+    const itemID = Number(communityDetails?.id);
+    setIsLoading(true);
+    AllGetAPI({
+      url: `view-all-community-post/${itemID}`,
+      Token: user?.api_token,
+    })
+      .then(res => {
+        setIsLoading(false);
+        console.log('my post data new', JSON.stringify(res));
 
+        if (res.status === 'success') {
+          setCommunityPosts(res.data || []);
+        } else {
+          setIsLoading(false);
+        }
+      })
+      .catch(err => {
+        setIsLoading(false);
+        console.log('api error tasks', err);
+      });
+  };
+
+  const getLikesofPosts = id => {
+    setIsLoading(true);
+    AllGetAPI({
+      url: `like-community-post/${id}`,
+      Token: user?.api_token,
+    })
+      .then(res => {
+        setIsLoading(false);
+        // console.log('my post like', JSON.stringify(res));
+        if (res.status === 'success') {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: res.message,
+            topOffset: Platform.OS === 'ios' ? 20 : 0,
+            visibilityTime: 3000,
+            autoHide: true,
+          });
+          //  getCommunityPosts();
+          getCommunityPostsDetails();
+        } else {
+          setIsLoading(false);
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: res.message,
+            topOffset: Platform.OS === 'ios' ? 20 : 0,
+            visibilityTime: 3000,
+            autoHide: true,
+          });
+        }
+      })
+      .catch(err => {
+        setIsLoading(false);
+        console.log('api error tasks', err);
+      });
+  };
   // Handle option selection
   // if (option.value === 'Share') {
   //   // Handle share functionality
@@ -167,41 +231,31 @@ const CommunityDetails = ({ navigation, route }) => {
   //   // Handle report functionality
   //   console.log('Report selected');
   // }
-  const handleOptionSelect = async option => {
-    setIsDropdownVisible(false);
+  const shareFunction = async () => {
+    const postId = postdata?.id || postdata?.redirect || communityDetails?.id;
 
-    if (option.value === 'Share') {
-      const postId = postdata?.id || postdata?.redirect || communityDetails?.id;
+    // Generate the deep link URL
+    const deepLinkUrl = `https://plantflipsapp.com/community/post/${postId}`;
+    console.log('deepLinking dd', deepLinkUrl);
+    const shareMessage = `Check out this community post: ${
+      deepLinkUrl || 'View this post in the app'
+    }`;
 
-      // Generate the deep link URL
-      const deepLinkUrl = `https://plantflipsapp.com/community/post/${postId}`;
-      console.log('deepLinking dd', deepLinkUrl);
-      const shareMessage = `Check out this community post: ${
-        deepLinkUrl || 'View this post in the app'
-      }`;
+    try {
+      const result = await Share.share({
+        message: shareMessage,
+        url: deepLinkUrl,
+        title: 'Community Post',
+      });
 
-      try {
-        const result = await Share.share({
-          message: shareMessage,
-          url: deepLinkUrl,
-          title: 'Community Post',
-        });
-
-        if (result.action === Share.sharedAction) {
-          console.log('Shared successfully');
-        } else if (result.action === Share.dismissedAction) {
-          console.log('Share dismissed');
-        }
-      } catch (error) {
-        Alert.alert(
-          'Share Error',
-          'Unable to share the post. Please try again.',
-        );
-        console.log('Share error:', error.message);
+      if (result.action === Share.sharedAction) {
+        console.log('Shared successfully');
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
       }
-    } else if (option.value === 'Report') {
-      console.log('Report selected');
-      setModalReport(true)
+    } catch (error) {
+      Alert.alert('Share Error', 'Unable to share the post. Please try again.');
+      console.log('Share error:', error.message);
     }
   };
 
@@ -258,8 +312,8 @@ const CommunityDetails = ({ navigation, route }) => {
 
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 35 : 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -268,37 +322,51 @@ const CommunityDetails = ({ navigation, route }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-       <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
-            marginBottom:wp(4),
-            shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            marginBottom: wp(4),
+            // shadowColor: '#000',
+            // shadowOffset: { width: 0, height: 6 }, // push shadow down
+            // shadowOpacity: 0.2,
+            // shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
           <View
             style={{
               flexDirection: 'row',
-              marginLeft: wp(12),
+              // marginLeft: wp(12),
               alignItems: 'center',
             }}
           >
-            <Image
+            {/* <Image
               source={
                 postdata?.user?.image || postdata?.image
                   ? { uri: postdata?.user?.image || postdata?.image }
@@ -311,16 +379,16 @@ const CommunityDetails = ({ navigation, route }) => {
                 marginRight: wp(2),
                 borderRadius: 22,
               }}
-            />
+            /> */}
             <View>
               <Text
                 style={{
-                  fontSize: 12,
+                  fontSize: 16,
                   fontFamily: fonts.bold,
-                  color: Colors.black,
+                  color: Colors.white,
                 }}
               >
-                {postdata?.user?.name || postdata?.name}
+                Post Detail
               </Text>
               {/* <Text
                 style={{
@@ -334,8 +402,10 @@ const CommunityDetails = ({ navigation, route }) => {
             </View>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
+          <View
+            style={{ flexDirection: 'row', width: 25, alignItems: 'center' }}
+          >
+            {/* <TouchableOpacity
               onPress={() => setIsDropdownVisible(!isDropdownVisible)}
               style={{ padding: wp(2) }}
             >
@@ -344,7 +414,7 @@ const CommunityDetails = ({ navigation, route }) => {
                 size={20}
                 color={Colors.black}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -353,17 +423,17 @@ const CommunityDetails = ({ navigation, route }) => {
             <View
               style={{
                 width: wp(90),
-                backgroundColor: 'white',
+                // backgroundColor: 'white',
                 // marginVertical: wp(2),
                 marginTop: wp(1),
                 borderRadius: wp(3),
                 alignSelf: 'center',
-                elevation: 2,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.18,
-                shadowRadius: 8,
-                paddingHorizontal: wp(3),
+                // elevation: 2,
+                // shadowColor: '#000',
+                // shadowOffset: { width: 0, height: 4 },
+                // shadowOpacity: 0.18,
+                // shadowRadius: 8,
+                // paddingHorizontal: wp(3),
                 paddingVertical: wp(3),
               }}
             >
@@ -375,7 +445,7 @@ const CommunityDetails = ({ navigation, route }) => {
                 }
                 resizeMode="cover"
                 style={{
-                  width: wp(86),
+                  width: wp(90),
                   height: wp(50),
                   alignSelf: 'center',
                   borderRadius: 8,
@@ -383,6 +453,82 @@ const CommunityDetails = ({ navigation, route }) => {
               />
             </View>
           ) : null}
+          <View
+            style={{
+              flexDirection: 'row',
+              paddingHorizontal: 30,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                onPress={() => getLikesofPosts(communityDetails?.id)}
+                style={{
+                  marginRight: wp(3),
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Entypo
+                  name={
+                    communityDetails?.is_like === 1 ? 'heart' : 'heart-outlined'
+                  }
+                  size={18}
+                  color={'white'}
+                />
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: fonts.medium,
+                    color: Colors.white,
+                    marginLeft: 5,
+                  }}
+                >
+                  {`(${communityDetails?.likes?.length})`}
+                </Text>
+                {/* <Image
+                            source={images.heartIcon}
+                            resizeMode="contain"
+                            style={{
+                              width: 17,
+                              height: 17,
+                              marginRight: wp(3),
+                            }}
+                          /> */}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  shareFunction();
+                }}
+              >
+                <Image
+                  tintColor={'white'}
+                  source={images.shareIcon}
+                  resizeMode="contain"
+                  style={{ width: 17, height: 17 }}
+                />
+              </TouchableOpacity>
+            </View>
+            {/* <MaterialIcons
+              name={'comment-alert-outline'}
+              size={20}
+              color={'white'}
+            /> */}
+            {communityDetails?.user?.id == user?.id ? null : (
+              <TouchableOpacity
+                onPress={() => {
+                  setModalReport(true);
+                }}
+              >
+                <Image
+                  source={require('../../Assets/Q.png')}
+                  style={{ width: 15, height: 15 }}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
           <View style={{ marginHorizontal: wp(5), marginTop: wp(4) }}>
             {/* <Text
               style={{
@@ -397,7 +543,7 @@ const CommunityDetails = ({ navigation, route }) => {
               style={{
                 fontSize: 12,
                 fontFamily: fonts.medium,
-                color: Colors.black,
+                color: Colors.white,
                 lineHeight: 16,
               }}
             >
@@ -409,15 +555,19 @@ const CommunityDetails = ({ navigation, route }) => {
               style={{
                 fontSize: 16,
                 fontFamily: fonts.bold,
-                color: Colors.black,
+                color: Colors.white,
                 marginLeft: wp(2),
                 marginTop: wp(2),
               }}
             >
-              Comments
+              Comments ({postComments?.length})
             </Text>
-            <ScrollView>
-              <View style={{marginBottom:wp(6)}}>
+
+            <View
+              style={{
+                marginBottom: isKeyboardVisible ? wp(15) : wp(1),
+              }}
+            >
               <FlatList
                 data={postComments}
                 keyExtractor={item =>
@@ -427,11 +577,11 @@ const CommunityDetails = ({ navigation, route }) => {
                   <View
                     style={{
                       width: wp(90),
-                      backgroundColor: 'white',
+                      backgroundColor: '#BD2BAF33',
                       marginVertical: wp(2),
                       borderRadius: wp(3),
                       alignSelf: 'center',
-                      elevation: 2,
+                      // elevation: 2,
                       shadowColor: '#000',
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.18,
@@ -466,9 +616,10 @@ const CommunityDetails = ({ navigation, route }) => {
                         />
                         <Text
                           style={{
-                            fontSize: 14,
+                            fontSize: 12,
+                            marginLeft: 5,
                             fontFamily: fonts.medium,
-                            color: Colors.black,
+                            color: Colors.white,
                           }}
                         >
                           {item?.user?.name}
@@ -478,7 +629,7 @@ const CommunityDetails = ({ navigation, route }) => {
                         style={{
                           fontSize: 10,
                           fontFamily: fonts.medium,
-                          color: '#6C757D',
+                          color: Colors.white,
                         }}
                       >
                         {moment(item?.created_at)
@@ -487,11 +638,12 @@ const CommunityDetails = ({ navigation, route }) => {
                       </Text>
                     </View>
                     <Text
+                      numberOfLines={4}
                       style={{
                         fontSize: 12,
                         fontFamily: fonts.medium,
-                        color: '#6C757D',
-                        marginTop: wp(1),
+                        color: Colors.white,
+                        marginTop: wp(3),
                         lineHeight: 16,
                       }}
                     >
@@ -500,8 +652,7 @@ const CommunityDetails = ({ navigation, route }) => {
                   </View>
                 )}
               />
-              </View>
-            </ScrollView>
+            </View>
           </View>
         </ScrollView>
 
@@ -510,8 +661,8 @@ const CommunityDetails = ({ navigation, route }) => {
             width: wp(100),
             height: wp(25),
             position: 'absolute',
-            bottom: wp(3),
-            backgroundColor: 'white',
+            bottom: wp(1),
+            // backgroundColor: 'white',
           }}
         >
           <View
@@ -520,16 +671,13 @@ const CommunityDetails = ({ navigation, route }) => {
               alignItems: 'center',
               justifyContent: 'space-between',
               position: 'absolute',
-              bottom:
-                Platform.OS === 'ios' && isKeyboardVisible
-                  ? keyboardHeight
-                  : wp(5),
+              bottom: 0,
               alignSelf: 'center',
               width: wp(90),
               paddingHorizontal: wp(4),
               height: wp(13),
-              borderWidth: 1,
-              borderRadius: wp(6),
+              backgroundColor: '#BD2BAF',
+              borderRadius: 12,
               borderColor: Colors.mainColor,
             }}
           >
@@ -540,9 +688,10 @@ const CommunityDetails = ({ navigation, route }) => {
                 resizeMode="contain"
               /> */}
               <TextInput
-                style={styles.inputtext}
+                // style={styles.inputtext}
+                style={{ color: 'white' }}
                 placeholder="Write a comment"
-                placeholderTextColor={'grey'}
+                placeholderTextColor={'white'}
                 value={newComment}
                 onChangeText={text => setnewComment(text)}
               />
@@ -559,7 +708,7 @@ const CommunityDetails = ({ navigation, route }) => {
                 <Ionicons
                   name="send"
                   size={18}
-                  color={newComment ? Colors.mainColor : Colors.grey}
+                  color={newComment ? Colors.white : Colors.grey}
                 />
               </TouchableOpacity>
             </View>
@@ -584,7 +733,7 @@ const CommunityDetails = ({ navigation, route }) => {
                     width: wp(35),
                     backgroundColor: Colors.white,
                     borderRadius: wp(4),
-                    elevation: 5,
+                    // elevation: 5,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.18,
@@ -635,36 +784,102 @@ const CommunityDetails = ({ navigation, route }) => {
           visible={modalReport}
           onRequestClose={() => setModalReport(false)}
         >
-          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}>
-            <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: wp(6), marginHorizontal: wp(5), marginBottom: wp(8) }}>
-              <Text style={{ fontSize: 18, fontFamily: fonts.bold, textAlign: 'center', marginBottom: wp(4) }}>
-               Report
-              </Text>
-
-              <TouchableOpacity
-                style={{ position: 'absolute', top: 15, right: 15 }}
-                onPress={() => setModalReport(false)}
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'flex-end',
+              backgroundColor: 'rgba(0,0,0,0.6)',
+            }}
+          >
+            <ImageBackground resizeMode="cover" source={images.mainImage}>
+              <View
+                style={{
+                  // backgroundColor: '#fff',
+                  borderRadius: 16,
+                  padding: wp(6),
+                  marginHorizontal: wp(5),
+                  marginBottom: wp(8),
+                }}
               >
-                <AntDesign name="close" size={22} color="#000" />
-              </TouchableOpacity>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: fonts.bold,
+                    color: 'white',
+                    textAlign: 'center',
+                    marginBottom: wp(8),
+                  }}
+                >
+                  Report
+                </Text>
 
-              <Text style={{ fontFamily: fonts.bold, fontSize: 14, marginBottom: wp(2) }}>Reason</Text>
-              <TextInput
-                placeholder="Write your reason here..."
-                placeholderTextColor={Colors.black}
-                value={reporttitle}
-                onChangeText={setReportTitle}
-                multiline
-                style={{ backgroundColor: '#FAFAFA', borderRadius: 10, padding: 15, height: 120, textAlignVertical: 'top',elevation:3, }}
-              />
+                <TouchableOpacity
+                  style={{
+                    position: 'absolute',
+                    top: 22,
+                    backgroundColor: 'white',
+                    right: 15,
+                    borderRadius: 30,
+                    width: 20,
+                    height: 20,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onPress={() => setModalReport(false)}
+                >
+                  <AntDesign name="close" size={16} color="#000" />
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={()=>addReportApi()}
-                style={{ backgroundColor: Colors.mainColor, marginTop: wp(6), borderRadius: 12, padding: 12, alignItems: 'center' }}
-              >
-                <Text style={{ color: '#fff', fontFamily: fonts.bold, fontSize: 16 }}>Send</Text>
-              </TouchableOpacity>
-            </View>
+                {/* <Text
+                  style={{
+                    fontFamily: fonts.bold,
+                    fontSize: 14,
+                    marginBottom: wp(2),
+                  }}
+                >
+                  Reason
+                </Text> */}
+                <TextInput
+                  placeholder="Description here..."
+                  placeholderTextColor={Colors.white}
+                  value={reporttitle}
+                  onChangeText={setReportTitle}
+                  numberOfLines={5}
+                  multiline
+                  style={{
+                    // backgroundColor: '#FAFAFA',
+                    backgroundColor: '#00000080',
+                    borderRadius: 10,
+                    padding: 15,
+                    color: 'white',
+                    height: 120,
+                    textAlignVertical: 'top',
+                    // elevation: 3,
+                  }}
+                />
+
+                <TouchableOpacity
+                  onPress={() => addReportApi()}
+                  style={{
+                    backgroundColor: Colors.mainColor,
+                    marginTop: wp(6),
+                    borderRadius: 12,
+                    padding: 12,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontFamily: fonts.bold,
+                      fontSize: 16,
+                    }}
+                  >
+                    Submit
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ImageBackground>
           </View>
         </Modal>
       </KeyboardAvoidingView>

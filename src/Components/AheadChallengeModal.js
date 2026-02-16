@@ -45,7 +45,13 @@ const DATA = [
   },
 ];
 
-const AheadChallengeModal = ({ visible = false, onClose = () => {onClose}, navigation }) => {
+const AheadChallengeModal = ({
+  visible = false,
+  onClose = () => {
+    onClose;
+  },
+  navigation,
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
 
@@ -67,10 +73,14 @@ const AheadChallengeModal = ({ visible = false, onClose = () => {onClose}, navig
           </View>
         ))}
       </View>
- 
+
       <TouchableOpacity
         style={[styles.button, { backgroundColor: Colors.mainColor }]}
-        onPress={() => item.buttonText == 'Go Premium'||item.buttonText == 'Start Now' ? [onClose(), navigation.navigate('Subscription')] : onClose()}
+        onPress={() =>
+          item.buttonText == 'Go Premium' || item.buttonText == 'Start Now'
+            ? [onClose(), navigation.navigate('Subscription')]
+            : onClose()
+        }
       >
         <Text style={styles.buttonText}>{item.buttonText}</Text>
       </TouchableOpacity>
@@ -82,9 +92,9 @@ const AheadChallengeModal = ({ visible = false, onClose = () => {onClose}, navig
     </View>
   );
 
-  const handleScrollEnd = (event) => {
+  const handleScrollEnd = event => {
     const newIndex = Math.round(
-      event.nativeEvent.contentOffset.x / (width * 0.9)
+      event.nativeEvent.contentOffset.x / (width * 0.9),
     );
     setActiveIndex(newIndex);
   };
@@ -92,7 +102,12 @@ const AheadChallengeModal = ({ visible = false, onClose = () => {onClose}, navig
   if (!visible) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <View style={styles.modalOverlay}>
         {/* Backdrop - tap to close */}
         <TouchableOpacity
@@ -103,28 +118,28 @@ const AheadChallengeModal = ({ visible = false, onClose = () => {onClose}, navig
 
         {/* Rounded Modal Content with Background Image */}
         {/* <View style={styles.modalContainer}> */}
-          <ImageBackground
-            source={require('../Assets/sbg.png')}
-            resizeMode="cover"
-            style={styles.modalContainer}
-            imageStyle={{ borderRadius: wp(10) }} // This rounds the image itself
-          >
-            <FlatList
-              ref={flatListRef}
-              data={DATA}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={handleScrollEnd}
-              getItemLayout={(data, index) => ({
-                length: width * 0.9,
-                offset: (width * 0.9) * index,
-                index,
-              })}
-            />
-          </ImageBackground>
+        <ImageBackground
+          source={require('../Assets/Subscribe pop.png')}
+          resizeMode="cover"
+          style={styles.modalContainer}
+          imageStyle={{ borderRadius: wp(10) }} // This rounds the image itself
+        >
+          <FlatList
+            ref={flatListRef}
+            data={DATA}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleScrollEnd}
+            getItemLayout={(data, index) => ({
+              length: width * 0.9,
+              offset: width * 0.9 * index,
+              index,
+            })}
+          />
+        </ImageBackground>
         {/* </View> */}
       </View>
     </Modal>
@@ -141,9 +156,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: wp(90),
     height: 500,
-    borderRadius: wp(10),  
-    backgroundColor: 'red',         // Main rounded corners
-    overflow: 'hidden',             // Crucial: clips children (FlatList) to rounded corners
+    borderRadius: wp(10),
+    backgroundColor: '#BD2BAF33', // Main rounded corners
+    overflow: 'hidden', // Crucial: clips children (FlatList) to rounded corners
     elevation: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },

@@ -32,7 +32,8 @@ import { useLanguage } from '../../Components/context/LanguageContext';
 import staticTexts from '../../locales/staticTexts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const AddMembers = ({ navigation }) => {
+const AddMembers = ({ navigation, route }) => {
+  const onSave = route?.params?.onSave;
   const user = useSelector(state => state.user.user);
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [allMembers, setAllMembers] = useState([]);
@@ -59,7 +60,7 @@ const AddMembers = ({ navigation }) => {
     AllGetAPI({ url: 'getAllUsers', Token: user?.api_token })
       .then(res => {
         setAllMembers(res.data);
-        console.log('response of all users', JSON.stringify(res));
+        // console.log('response of all users', JSON.stringify(res));
         setIsLoading(false);
       })
       .catch(err => {
@@ -98,12 +99,17 @@ const AddMembers = ({ navigation }) => {
           Toast.show({
             type: 'success',
             text1: successTitle,
-            text2: res.message,  // Backend message — keep original or translate if needed
+            text2: res.message, // Backend message — keep original or translate if needed
             topOffset: Platform.OS === 'ios' ? 20 : 0,
             visibilityTime: 3000,
             autoHide: true,
           });
           getAllMembers();
+          if (onSave) {
+            onSave(selectedMembers);
+          }
+
+          navigation.goBack();
         } else {
           Toast.show({
             type: 'error',
@@ -128,7 +134,7 @@ const AddMembers = ({ navigation }) => {
       </ImageBackground>
     );
   }
-const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
       source={images.myallbackbg}
@@ -141,7 +147,7 @@ const {top}=useSafeAreaInsets()
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-     <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -158,7 +164,11 @@ const {top}=useSafeAreaInsets()
             shadowRadius: 4,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="dark-content"
+          />
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
@@ -227,7 +237,7 @@ const {top}=useSafeAreaInsets()
                     color: Colors.black,
                   }}
                 >
-                  {member.name}  {/* User name — keep original */}
+                  {member.name} {/* User name — keep original */}
                 </Text>
                 <View
                   style={{
@@ -286,7 +296,7 @@ const {top}=useSafeAreaInsets()
               color: Colors.white,
             }}
           >
-            {addButtonText}  {/* Translated */}
+            {addButtonText} {/* Translated */}
           </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

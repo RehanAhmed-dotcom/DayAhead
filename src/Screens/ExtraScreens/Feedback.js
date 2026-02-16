@@ -38,7 +38,13 @@ const Feedback = ({ navigation }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [isloading, setIsLoading] = useState(false);
-
+  const ratingLabels = {
+    1: 'Very Bad',
+    2: 'Bad',
+    3: 'Okay',
+    4: 'Good',
+    5: 'Excellent',
+  };
   const { ready } = useLanguage();
 
   // Translated static texts
@@ -96,6 +102,7 @@ const Feedback = ({ navigation }) => {
             autoHide: true,
           });
           setRating(0);
+          navigation.goBack();
           setReview('');
         } else {
           Toast.show({
@@ -121,10 +128,10 @@ const Feedback = ({ navigation }) => {
       </ImageBackground>
     );
   }
-const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
+      source={images.mainImage}
       style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 35 : 0 }}
       resizeMode="cover"
     >
@@ -139,10 +146,10 @@ const {top}=useSafeAreaInsets()
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
@@ -151,8 +158,22 @@ const {top}=useSafeAreaInsets()
             shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -160,11 +181,11 @@ const {top}=useSafeAreaInsets()
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
-          {screenTitle}
+            {screenTitle}
           </Text>
 
           {/* Empty View to balance the row */}
@@ -173,32 +194,10 @@ const {top}=useSafeAreaInsets()
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View>
-            <View
-              style={{
-                justifyContent: 'space-around',
-                alignItems: 'center',
-                flex: 1,
-                marginTop: wp(15),
-              }}
-            >
-              <Image
-                source={images.feedbackImg}
-                resizeMode="cover"
-                style={{ width: wp(70), height: wp(70), alignSelf: 'center' }}
-              />
-            </View>
-            <View
-              style={{
-                width: wp(60),
-                height: wp(0.4),
-                backgroundColor: Colors.grey,
-                alignSelf: 'center',
-              }}
-            ></View>
-            <View
+            {/* <View
               style={{
                 alignItems: 'center',
-                marginTop: wp(5),
+                marginTop: wp(50),
                 justifyContent: 'center',
                 alignSelf: 'center',
                 width: wp(90),
@@ -207,45 +206,108 @@ const {top}=useSafeAreaInsets()
               <Rating
                 type="star"
                 ratingCount={5}
+                ratingBackgroundColor="transparent"
+                style={{ backgroundColor: 'transparent' }}
                 imageSize={30}
+                // tintColor="transparent"
                 onFinishRating={ratingCompleted}
               />
-            </View>
-            <Text
-              style={[
-                styles.labelStyle,
-                { marginLeft: wp(7), marginTop: wp(4) },
-              ]}
+            </View> */}
+            {/* <Rating
+              type="custom"
+              ratingCount={5}
+              imageSize={42}
+              startingValue={rating}
+              tintColor="transparent"
+              ratingBackgroundColor="transparent"
+              onFinishRating={value => setRating(value)}
+              style={{ alignSelf: 'center', marginBottom: 15 }}
+            /> */}
+            {/* <View>
+              <Rating
+                type="custom"
+                ratingCount={5}
+                imageSize={42}
+                startingValue={rating}
+                tintColor={Colors.black + 40}
+                ratingColor="#FFC107"
+                ratingBackgroundColor="tansparent"
+                onFinishRating={value => setRating(value)}
+                style={{
+                  alignSelf: 'center',
+                  // paddingHorizontal: 20,
+                  marginBottom: 15,
+                  // padding: 30,
+                }}
+              />
+              
+            </View> */}
+            <View
+              style={{
+                flexDirection: 'row',
+
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              {feedbackLabel}
+              {Array.from({ length: 5 }).map((_, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    console.log(index + 1);
+                    setRating(index + 1);
+                  }}
+                >
+                  <AntDesign
+                    name="star"
+                    size={35}
+                    color={index < rating ? '#FFD60A' : Colors.white}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Rating Text */}
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 26,
+                fontWeight: '600',
+                textAlign: 'center',
+                marginBottom: 30,
+              }}
+            >
+              {ratingLabels[rating]}
             </Text>
             <View
               style={{
                 width: wp(85),
                 height: wp(35),
+                marginTop: hp(10),
                 borderRadius: wp(3),
-                elevation: 2,
+                // elevation: 2,
                 shadowOffset: { height: 2, width: 4 },
                 shadowOpacity: 0.2,
                 shadowColor: 'white',
                 shadowRadius: 8,
-                backgroundColor: 'white',
+                backgroundColor: '#00000066',
                 alignSelf: 'center',
                 marginBottom: wp(3),
-                borderWidth: 1,
-                borderColor: Colors.mainColor,
+                // borderWidth: 1,
+                // borderColor: '',
               }}
             >
               <TextInput
                 style={{
                   paddingHorizontal: wp(3),
-                  color: Colors.black,
+                  color: Colors.white,
                   fontFamily: fonts.regular,
+                  paddingTop: 10,
                   fontSize: 13,
                 }}
                 multiline
                 placeholder={placeholderText}
-                placeholderTextColor={Colors.lightgrey}
+                placeholderTextColor={Colors.white}
                 value={review}
                 onChangeText={text => setReview(text)}
               />

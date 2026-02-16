@@ -45,7 +45,7 @@ PODS:
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
   - FirebaseAppCheckInterop (12.6.0)
-  - FirebaseAuthInterop (12.7.0)
+  - FirebaseAuthInterop (12.8.0)
   - FirebaseCore (12.6.0):
     - FirebaseCoreInternal (~> 12.6.0)
     - GoogleUtilities/Environment (~> 8.1)
@@ -112,7 +112,7 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleSignIn (9.0.0):
+  - GoogleSignIn (9.1.0):
     - AppAuth (~> 2.0)
     - AppCheckCore (~> 11.0)
     - GTMAppAuth (~> 5.0)
@@ -2760,34 +2760,8 @@ PODS:
     - SocketRocket
     - TOCropViewController (~> 2.8.0)
     - Yoga
-  - RNLocalize (3.6.0):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
+  - RNLocalize (2.2.6):
     - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - SocketRocket
-    - Yoga
   - RNNotifee (9.1.8):
     - React-Core
     - RNNotifee/NotifeeCore (= 9.1.8)
@@ -3618,7 +3592,7 @@ SPEC CHECKSUMS:
   Firebase: a451a7b61536298fd5cbfe3a746fd40443a50679
   FirebaseAnalytics: d0a97a0db6425e5a5d966340b87f92ca7b13a557
   FirebaseAppCheckInterop: e2178171b4145013c7c1a3cc464d1d446d3a1896
-  FirebaseAuthInterop: deb2638881b5d98c88c4371dd0de65b6110f217b
+  FirebaseAuthInterop: 95363fe96493cb4f106656666a0768b420cba090
   FirebaseCore: 0e38ad5d62d980a47a64b8e9301ffa311457be04
   FirebaseCoreExtension: 032fd6f8509e591fda8cb76f6651f20d926b121f
   FirebaseCoreInternal: 69bf1306a05b8ac43004f6cc1f804bb7b05b229e
@@ -3633,7 +3607,7 @@ SPEC CHECKSUMS:
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   GoogleAppMeasurement: 3bf40aff49a601af5da1c3345702fcb4991d35ee
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleSignIn: c7f09cfbc85a1abf69187be091997c317cc33b77
+  GoogleSignIn: fcee2257188d5eda57a5e2b6a715550ffff9206d
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
@@ -3725,7 +3699,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 606b85298c19d681ca076ca523dc23396120adab
   RNGoogleSignin: ae402eef72546614abaecf50307d6c6c15569e1e
   RNImageCropPicker: c456a5d12cfc902ec8865c79af97f6df137250ba
-  RNLocalize: 000be4f69edb5cc1b3266379ba6e40ec77a54a3c
+  RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
   RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
   RNReanimated: 80c1464a2a5badf4b1404f3430cddbdea0b5f71a
   RNScreens: 3693ec4bbc0065151b843269e50e9807644e9918

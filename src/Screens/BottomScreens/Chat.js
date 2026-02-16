@@ -10,8 +10,10 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  Alert,
 } from 'react-native';
-import { Colors, fonts, images } from '../../Constant/Index';
+import Fontisto from 'react-native-vector-icons/MaterialIcons';
+import { Colors, fonts, images, styles } from '../../Constant/Index';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -21,6 +23,7 @@ import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { AllGetAPI } from '../../Components/ApiRoot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 const Chat = ({ navigation }) => {
   const [onchangeTab, setOnChangeTab] = useState('1');
@@ -29,7 +32,7 @@ const Chat = ({ navigation }) => {
   const [communitydata, setCommunityData] = useState([]);
 
   // Clean email key (Firebase doesn't allow . @ etc.)
-  const getCleanKey = (email) => email?.replace(/[^a-zA-Z0-9 ]/g, '') || '';
+  const getCleanKey = email => email?.replace(/[^a-zA-Z0-9 ]/g, '') || '';
 
   // Real-time listener for chat list
   useEffect(() => {
@@ -38,10 +41,10 @@ const Chat = ({ navigation }) => {
     const myKey = getCleanKey(user.email);
     const chatListRef = database().ref(`users/${myKey}`);
 
-    const onChatUpdate = (snapshot) => {
+    const onChatUpdate = snapshot => {
       const chats = [];
 
-      snapshot.forEach((child) => {
+      snapshot.forEach(child => {
         const data = child.val();
         if (data?.user) {
           chats.push({
@@ -61,6 +64,8 @@ const Chat = ({ navigation }) => {
       // Sort by latest message time
       chats.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       setList(chats);
+
+      console.log(chats);
     };
 
     chatListRef.on('value', onChatUpdate);
@@ -70,6 +75,61 @@ const Chat = ({ navigation }) => {
       chatListRef.off('value', onChatUpdate);
     };
   }, [user?.email]);
+
+  const deleteChat = async chatKey => {
+    try {
+      if (!user?.email) return;
+
+      const myKey = getCleanKey(user.email);
+      const otherUserKey = getCleanKey(chatKey); // chatKey is the other user's email
+
+      // References to both users' chat entries
+      const myChatRef = database().ref(`users/${myKey}/${chatKey}`);
+      const otherUserChatRef = database().ref(`users/${otherUserKey}/${myKey}`);
+
+      // Remove from both sides
+      await Promise.all([myChatRef.remove(), otherUserChatRef.remove()]);
+
+      Alert.alert('Success', 'Chat deleted successfully');
+
+      // Also delete all messages between users if needed
+      await deleteAllMessagesBetweenUsers(myKey, otherUserKey);
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      Alert.alert('Error', 'Failed to delete chat');
+    }
+  };
+
+  const deleteAllMessagesBetweenUsers = async (user1Key, user2Key) => {
+    try {
+      // Create a unique chat ID (sorted to ensure consistency)
+      const chatIds = [user1Key, user2Key].sort();
+      const chatId = `${chatIds[0]}_${chatIds[1]}`;
+
+      // Reference to messages node
+      const messagesRef = database().ref(`messages/${chatId}`);
+
+      // Remove all messages
+      await messagesRef.remove();
+    } catch (error) {
+      console.error('Error deleting messages:', error);
+    }
+  };
+
+  const handleDeleteChat = (chatKey, username) => {
+    Alert.alert(
+      'Delete Chat',
+      `Are you sure you want to delete your conversation with ${username}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteChat(chatKey),
+        },
+      ],
+    );
+  };
 
   // Load communities
   const getAllCommunity = () => {
@@ -86,111 +146,192 @@ const Chat = ({ navigation }) => {
     getAllCommunity();
   }, []);
 
-  const renderChatItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('Conversation', { item: item.user })}
-      style={{
-        width: wp(90),
-        alignSelf: 'center',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: wp(3),
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-      }}
-    >
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Image
-          source={item.user.image ? { uri: item.user.image } : images.avatarpic}
-          style={{ width: wp(14), height: wp(14), borderRadius: wp(7) }}
-          resizeMode="cover"
-        />
-        <View style={{ marginLeft: wp(3), maxWidth: wp(50) }}>
-          <Text style={{ fontSize: 15, fontFamily: fonts.bold, color: Colors.black }}>
-            {item.user.username}
-          </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              fontSize: 12,
-              color: Colors.lightgrey,
-              fontFamily: fonts.regular,
-            }}
-          >
-            {item.latestMessage || 'Start chatting...'}
-          </Text>
-        </View>
-      </View>
-
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={{ fontSize: 10, color: Colors.lightgrey, marginBottom: 4 }}>
-          {item.timestamp
-            ? moment(item.timestamp).calendar({
-                sameDay: 'HH:mm',
-                lastDay: '[Yesterday]',
-                lastWeek: 'DD/MM',
-                sameElse: 'DD/MM/YYYY',
-              })
-            : ''}
-        </Text>
-
-        {item.counter > 0 && (
-          <View
-            style={{
-              backgroundColor: '#F54975',
-              minWidth: wp(6),
-              height: wp(6),
-              borderRadius: wp(3),
-              justifyContent: 'center',
+  const renderChatItem = ({ item }) => {
+    const renderRightActions = () => {
+      return (
+        <TouchableOpacity
+          style={[
+            {
+              backgroundColor: '#BD2BAF',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               alignItems: 'center',
-              paddingHorizontal: 4,
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 11, fontFamily: fonts.bold }}>
-              {item.counter > 99 ? '99+' : item.counter}
-            </Text>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-  const { top } = useSafeAreaInsets();
-  return (
-    <ImageBackground source={images.myallbackbg} style={{ flex: 1,paddingTop:Platform.OS === 'ios' ?35: 0 }} resizeMode="cover">
-    
-
-      <View
+              marginr: 12,
+              padding: 8,
+              marginVertical: 16,
+              borderRadius: wp(2),
+            },
+          ]}
+          onPress={() => handleDeleteChat(item.key, item.user.username)}
+        >
+          <Fontisto name="delete" color="white" size={35} />
+        </TouchableOpacity>
+      );
+    };
+    return (
+      <ReanimatedSwipeable renderRightActions={() => renderRightActions()}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Conversation', { item: item.user })
+          }
           style={{
+            width: wp(90),
+            alignSelf: 'center',
             flexDirection: 'row',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
-            width: wp(100),
-            height: wp(25),
-            backgroundColor: '#FAFAFA',
-            paddingHorizontal: wp(4),
-            paddingTop: wp(5),
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 }, // push shadow down
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
+            justifyContent: 'space-between',
+            paddingVertical: wp(3),
+            // borderBottomWidth: 1,
+            borderBottomColor: '#eee',
           }}
         >
-          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 16, fontFamily: fonts.bold, color: Colors.black, marginRight: wp(7) }}>
-          Chat / Community
-          </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-           
+            <Image
+              source={
+                item.user.image ? { uri: item.user.image } : images.avatarpic
+              }
+              style={{
+                width: wp(14),
+                borderWidth: 1,
+                borderColor: 'white',
+                height: wp(14),
+                borderRadius: wp(7),
+              }}
+              resizeMode="cover"
+            />
+            <View style={{ marginLeft: wp(3), maxWidth: wp(50) }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: fonts.bold,
+                  color: Colors.white,
+                }}
+              >
+                {item.user.username}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={{
+                  fontSize: 14,
+                  marginTop: 5,
+                  color: Colors.white,
+                  fontFamily: fonts.regular,
+                }}
+              >
+                {item.latestMessage || 'Start chatting...'}
+              </Text>
+            </View>
           </View>
-        </View>
+
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text
+              style={{ fontSize: 10, color: Colors.white, marginBottom: 4 }}
+            >
+              {item.timestamp
+                ? moment(item.timestamp).calendar({
+                    sameDay: 'HH:mm',
+                    lastDay: '[Yesterday]',
+                    lastWeek: 'DD/MM',
+                    sameElse: 'DD/MM/YYYY',
+                  })
+                : ''}
+            </Text>
+
+            {item.counter > 0 && (
+              <View
+                style={{
+                  backgroundColor: Colors.mainColor,
+                  minWidth: wp(6),
+                  height: wp(6),
+                  borderRadius: wp(3),
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingHorizontal: 4,
+                }}
+              >
+                <Text
+                  style={{
+                    color: 'white',
+                    fontSize: 11,
+                    fontFamily: fonts.bold,
+                  }}
+                >
+                  {item.counter > 99 ? '99+' : item.counter}
+                </Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      </ReanimatedSwipeable>
+    );
+  };
+  const { top } = useSafeAreaInsets();
+  return (
+    <ImageBackground
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
+      resizeMode="cover"
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          // elevation: 4,
+          width: wp(100),
+          height: wp(25),
+          // backgroundColor: '#FAFAFA',
+          paddingHorizontal: wp(4),
+          paddingTop: wp(5),
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: 6 }, // push shadow down
+          // shadowOpacity: 0.2,
+          // shadowRadius: 3,
+        }}
+      >
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="light-content"
+        />
+        <TouchableOpacity
+          style={{ width: 45 }}
+          onPress={() => navigation.openDrawer()}
+        >
+          <Image
+            source={images.menuIcon}
+            style={{ width: 26, height: 26 }}
+            tintColor="white"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+        <Text
+          style={{ fontSize: 16, fontFamily: fonts.bold, color: Colors.white }}
+        >
+          Chat
+        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('ChatAI')}>
+          <ImageBackground
+            source={images.mainImage}
+            style={{
+              width: 35,
+              height: 35,
+              borderRadius: 40,
+              overflow: 'hidden',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Image
+              source={require('../../Assets/AIBot.png')}
+              style={{ width: 30, height: 30 }}
+            />
+          </ImageBackground>
+        </TouchableOpacity>
+      </View>
 
       {/* Tabs */}
-      <View
+      {/* <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-evenly',
@@ -240,114 +381,51 @@ const Chat = ({ navigation }) => {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {onchangeTab === '1' ? (
-          <View style={{ flex: 1, marginTop: wp(4) }}>
-            {List.length === 0 ? (
-              <View
+        <View style={{ flex: 1, marginTop: wp(0) }}>
+          {List.length === 0 ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                // backgroundColor:"red",
+                marginTop: wp(5),
+              }}
+            >
+              <Text
                 style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: wp(60),
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontFamily: fonts.medium,
                 }}
               >
-                <Text style={{ fontSize: 18, color: Colors.white, fontFamily: fonts.medium }}>
-                  No chats yet
-                </Text>
-                <Text style={{ fontSize: 14, color: Colors.lightgrey, marginTop: 10 }}>
-                  Start a conversation!
-                </Text>
-              </View>
-            ) : (
-              <FlatList
-                data={List}
-                keyExtractor={(item) => item.key}
-                renderItem={renderChatItem}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
-          </View>
-        ) : (
-          // Community Tab
-          <View style={{ flex: 1, paddingHorizontal: wp(5), marginTop: wp(4) }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: wp(4) }}>
-              <View>
-                <Text style={{ fontSize: 18, fontFamily: fonts.bold, color: Colors.black }}>
-                  Community
-                </Text>
-                <Text style={{ fontSize: 12, color: Colors.lightgrey }}>
-                  Communities you have joined
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('CreateCommunity')}
-                style={{
-                  backgroundColor: Colors.mainColor,
-                  paddingHorizontal: wp(6),
-                  paddingVertical: wp(2.5),
-                  borderRadius: wp(5),
-                }}
+                No chats yet
+              </Text>
+              <Text
+                style={{ fontSize: 14, color: Colors.white, marginTop: 10 }}
               >
-                <Text style={{ color: 'white', fontSize: 11, fontFamily: fonts.bold }}>
-                  + Create
-                </Text>
-              </TouchableOpacity>
+                Start a conversation!
+              </Text>
             </View>
-<View style={{marginBottom:wp(22)}}>
+          ) : (
             <FlatList
-              data={communitydata}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('CommunityScreen', { item })}
-                  style={{
-                    backgroundColor: 'white',
-                    marginBottom: wp(3),
-                    borderRadius: wp(3),
-                    elevation:3,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.18,
-                    shadowRadius: 8,
-                    width:wp(89),
-                    padding: wp(4),
-                    alignSelf:'center',
-                    marginTop:wp(0.5)
-                  }}
-                >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontSize: 15, fontFamily: fonts.bold }}>{item.title}</Text>
-                    <View
-                      style={{
-                        backgroundColor: item.title === 'Sensitive' ? '#FF0835' : Colors.mainColor,
-                        paddingHorizontal: wp(3),
-                        paddingVertical: wp(1),
-                        borderRadius: wp(2),
-                      }}
-                    >
-                      <Text style={{ color: 'white', fontSize: 10 }}>
-                        {item.title.split(' ')[0]}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text numberOfLines={2} style={{ marginTop: 5, color: '#666', fontSize: 12 }}>
-                    {item.description}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={() => (
-                <Text style={{ textAlign: 'center', marginTop: 50, color: 'white' }}>
-                  No communities joined
-                </Text>
-              )}
+              data={List}
+              keyExtractor={item => item.key}
+              renderItem={renderChatItem}
+              showsVerticalScrollIndicator={false}
             />
-            </View>
-          </View>
-        )}
+          )}
+        </View>
       </ScrollView>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('FriendsMembers')}
+      >
+        <Fontisto name="add" size={24} color="white" />
+      </TouchableOpacity>
     </ImageBackground>
   );
 };

@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  Modal
+  Modal,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Colors, fonts, images } from '../../Constant/Index';
@@ -33,16 +33,22 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import Input1 from '../../Components/Input1';
 const SetAlarm = ({ navigation }) => {
   const user = useSelector(state => state.user.user);
-const [showAlarm, setShowAlarm] = useState(false);
+  const [showAlarm, setShowAlarm] = useState(false);
   const [AlarmName, setAlarmName] = useState('');
   const [selectedTime, setSelectedTime] = useState(''); // Stores "7:30 PM"
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   const [selectedDays, setSelectedDays] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   console.log('my time', selectedTime);
+  useEffect(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = days[new Date().getDay()];
 
+    setSelectedDays([today]);
+  }, []);
   // Convert Date → "7:30 PM" format
   const handleConfirm = date => {
     let hours = date.getHours();
@@ -69,17 +75,17 @@ const [showAlarm, setShowAlarm] = useState(false);
 
   const CreateAlarmApi = () => {
     // Validation
-    if (selectedDays.filter(day => day).length === 0) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'At least one day is required',
-        topOffset: Platform.OS === 'ios' ? 20 : 0,
-        visibilityTime: 3000,
-        autoHide: true,
-      });
-      return;
-    }
+    // if (selectedDays.filter(day => day).length === 0) {
+    //   Toast.show({
+    //     type: 'error',
+    //     text1: 'Error',
+    //     text2: 'At least one day is required',
+    //     topOffset: Platform.OS === 'ios' ? 20 : 0,
+    //     visibilityTime: 3000,
+    //     autoHide: true,
+    //   });
+    //   return;
+    // }
     if (!AlarmName.trim()) {
       Toast.show({
         type: 'error',
@@ -124,11 +130,11 @@ const [showAlarm, setShowAlarm] = useState(false);
             visibilityTime: 3000,
             autoHide: true,
           });
-                       setShowAlarm(true);
-  setTimeout(() => {
-    setShowAlarm(false); 
-          navigation.goBack();
-  }, 4000);
+          setShowAlarm(true);
+          setTimeout(() => {
+            setShowAlarm(false);
+            navigation.goBack();
+          }, 4000);
         } else {
           Toast.show({
             type: 'error',
@@ -154,34 +160,33 @@ const [showAlarm, setShowAlarm] = useState(false);
       });
   };
 
+  const translateXValue = useSharedValue(0);
 
-       const translateXValue = useSharedValue(0);
-          
-    useEffect(() => {
-      if (showAlarm) {
-        translateXValue.value = withSequence(
-          withTiming(-20, { duration: 1200 }),
-          withTiming(20, { duration: 1200 }),
-          withTiming(-15, { duration: 1200 }),
-          withTiming(15, { duration: 1200 }),
-          withTiming(0, {
-            duration: 600,
-            easing: Easing.out(Easing.ease),
-          })
-        );
-      }
-    }, [showAlarm]);
-    
-    const animatedStyle2 = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: translateXValue.value }],
-      };
-    });
-const {top}=useSafeAreaInsets()
+  useEffect(() => {
+    if (showAlarm) {
+      translateXValue.value = withSequence(
+        withTiming(-20, { duration: 1200 }),
+        withTiming(20, { duration: 1200 }),
+        withTiming(-15, { duration: 1200 }),
+        withTiming(15, { duration: 1200 }),
+        withTiming(0, {
+          duration: 600,
+          easing: Easing.out(Easing.ease),
+        }),
+      );
+    }
+  }, [showAlarm]);
+
+  const animatedStyle2 = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateXValue.value }],
+    };
+  });
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1,paddingTop:Platform.OS === 'ios' ?35: 0, }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isLoading && <Loader />}
@@ -190,15 +195,15 @@ const {top}=useSafeAreaInsets()
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-         <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
@@ -207,8 +212,22 @@ const {top}=useSafeAreaInsets()
             shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 30,
+              height: 30,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 30,
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -216,7 +235,7 @@ const {top}=useSafeAreaInsets()
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
@@ -229,25 +248,32 @@ const {top}=useSafeAreaInsets()
 
         <ScrollView contentContainerStyle={{ paddingBottom: wp(20) }}>
           {/* Alarm Name */}
-          <View style={{ marginHorizontal: wp(5), marginTop: wp(5), elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4, }}>
-            <Input
-              label="Alarm Name"
+          <View
+            style={{
+              marginHorizontal: wp(5),
+              marginTop: wp(5),
+              // elevation: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+            }}
+          >
+            <Input1
+              // label="Alarm Name"
               placeholder="e.g. Wake Up, Gym"
               value={AlarmName}
               onChangeText={setAlarmName}
-              showBorder
-              inputColor="#F8F8F8"
+              // showBorder
+              inputColor="#00000066"
               labelColor="#333"
+              color="white"
             />
           </View>
 
           {/* Time Display */}
           <View style={{ marginTop: wp(12), alignItems: 'center' }}>
-            <Text
+            {/* <Text
               style={{
                 color: '#333',
                 fontFamily: fonts.medium,
@@ -256,18 +282,18 @@ const {top}=useSafeAreaInsets()
               }}
             >
               Select Time
-            </Text>
+            </Text> */}
 
             <TouchableOpacity
               onPress={showTimePicker}
               style={{
                 width: wp(85),
                 height: wp(30),
-                backgroundColor: '#E8F5E8',
+                backgroundColor: '#00000070',
                 borderRadius: wp(5),
                 justifyContent: 'center',
                 alignItems: 'center',
-                elevation: 8,
+                // elevation: 8,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.2,
@@ -278,7 +304,7 @@ const {top}=useSafeAreaInsets()
                 style={{
                   fontSize: 28,
                   fontFamily: fonts.bold,
-                  color: Colors.mainColor,
+                  color: Colors.white,
                   letterSpacing: 2,
                 }}
               >
@@ -291,7 +317,7 @@ const {top}=useSafeAreaInsets()
           <View>
             <Text
               style={{
-                color: Colors.black,
+                color: Colors.white,
                 fontFamily: fonts.medium,
                 fontSize: 16,
                 marginLeft: wp(5),
@@ -324,7 +350,7 @@ const {top}=useSafeAreaInsets()
                     borderRadius: 8,
                     backgroundColor: selectedDays.includes(day)
                       ? Colors.mainColor
-                      : '#353535',
+                      : '#BD2BAF15',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginHorizontal: wp(1),
@@ -351,47 +377,48 @@ const {top}=useSafeAreaInsets()
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-       <Modal
-  transparent={true}
-  visible={ showAlarm}
-  animationType="fade"
-  onRequestClose={() => {
-    setShowAlarm(false);
-  }}
->
-  <View style={{
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }}>
-    <Animated.View style={animatedStyle2}>
-      <View style={{
-        backgroundColor: 'white',
-        borderRadius: 50,
-        padding: wp(8),
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
-        elevation: 15,
-      }}>
-        <Image
-          source={
-           images.happy
-          }
+      <Modal
+        transparent={true}
+        visible={showAlarm}
+        animationType="fade"
+        onRequestClose={() => {
+          setShowAlarm(false);
+        }}
+      >
+        <View
           style={{
-            width: wp(60),
-            height: wp(60),
-            resizeMode: 'contain',
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
-        />
-        
-      </View>
-    </Animated.View>
-  </View>
-</Modal>
+        >
+          <Animated.View style={animatedStyle2}>
+            <View
+              style={{
+                backgroundColor: '#00000070',
+                borderRadius: 50,
+                padding: wp(8),
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.3,
+                shadowRadius: 15,
+                elevation: 15,
+              }}
+            >
+              <Image
+                source={require('../../Assets/Complete.png')}
+                style={{
+                  width: wp(60),
+                  height: wp(60),
+                  resizeMode: 'contain',
+                }}
+              />
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
       {/* Time Picker */}
       <DateTimePickerModal
         isVisible={isTimePickerVisible}

@@ -1,134 +1,268 @@
 import {
-    View,
-    Text,
-    ImageBackground,
-    TouchableOpacity,
-    Image,
-    StatusBar,
-    ScrollView,
-    Platform,
-  } from 'react-native';
-  import React from 'react';
-  import { Colors, fonts, images,styles } from '../../../Constant/Index';
-  import {
-    widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
-  } from 'react-native-responsive-screen';
+  View,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
+  StatusBar,
+  ScrollView,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import React, { useState } from 'react';
+import { Colors, fonts, images, styles } from '../../../Constant/Index';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 import MainButton from '../../../Components/MainButton';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-  
-  const JnlOnboard4 = ({ navigation }) => {
-    return (
-        <View style={{ flex: 1, backgroundColor: Colors.white,paddingTop:Platform.OS === 'ios' ?40: 20 }}>
-       <StatusBar
-        translucent={false}
-        backgroundColor={Colors.white}
-        barStyle="dark-content"
-        />
-        <ScrollView>
-        <TouchableOpacity onPress={()=>navigation.goBack()} style={{position:'absolute',top:wp(10),left:wp(7)}}>
-        <MaterialIcons
-        name={'arrow-back-ios'}
-        size={20}
-        color={Colors.black}
-        />
-        </TouchableOpacity>
-        <View style={{ flex: 1, marginTop: wp(30), marginHorizontal: wp(3) }}>
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-       
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginHorizontal: wp(3),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 22,
-                color: Colors.black,
-                textAlign: 'center',
-                fontFamily: fonts.bold,
-                lineHeight: 26,
-              }}
-            >
-            Bigger Goal
-            </Text>
-          </View>
-  
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: wp(7),
-              marginHorizontal: wp(3),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                color: Colors.black,
-                textAlign: 'center',
-                fontFamily: fonts.medium,
-                lineHeight: 22,
-              }}
-            >
-          Something i want to achieve
-            </Text>
-          </View>
-          <Image
-          source={images.jnlonboard4}
-          resizeMode="contain"
+const JnlOnboard4 = ({ navigation }) => {
+  const [showInput, setShowInput] = useState(false);
+  const [otherValue, setOtherValue] = useState('');
+  const [lettingGo, setLettingGo] = useState('Need for control');
+  const data = [
+    {
+      id: 1,
+      title: 'Need for control',
+      image: require('../../../Assets/Solid mood happy.png'),
+    },
+    {
+      id: 2,
+      title: 'Fear of outcome',
+      image: require('../../../Assets/Solid mood neutral.png'),
+    },
+    {
+      id: 3,
+      title: 'Distraction',
+      image: require('../../../Assets/Solid mood sad.png'),
+    },
+    {
+      id: 4,
+      title: 'Stress',
+      image: require('../../../Assets/Solid mood depressed.png'),
+    },
+  ];
+  return (
+    <ImageBackground
+      source={require('../../../Assets/LettingGoImage.png')}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 10 : 0 }}
+      resizeMode="cover"
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? hp(0) : 0}
+      >
+        <View
           style={{
-            width: wp(50),
-            marginTop:wp(5),
-            height: wp(50),
-            // position: 'absolute',
-            // bottom: wp(10),
-            alignSelf: 'center',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            // elevation: 4,
+            width: wp(100),
+            height: wp(25),
+            // backgroundColor: '#FAFAFA',
+            paddingHorizontal: wp(4),
+            paddingTop: wp(5),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
-        />
-       <View
-              style={{
-                width: wp(90),
-                // height: wp(45),
-                borderRadius: wp(3),
-                elevation: 3,
-                shadowOffset: { height: 2, width: 4 },
-                shadowOpacity: 0.2,
-                shadowColor: 'grey',
-                shadowRadius: 8,
-                backgroundColor: '#FAFAFA',
-                alignSelf: 'center',
-                marginTop: wp(10),
-                paddingHorizontal:wp(3),
-                paddingVertical:wp(3)
-              }}
-            >
-            <Text
-              style={{
-                fontSize: 16,
-                color: Colors.black,
-                textAlign: 'center',
-                fontFamily: fonts.medium,
-                lineHeight: 22,
-              }}
-            >
-            On sait depuis longtemps que travailler avec du texte lisible et contenant du sens est source de distractions, et empêche de se concentrer sur la mise en page elle-même.
+        >
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
+            <AntDesign name="left" size={20} color={Colors.black} />
+          </TouchableOpacity>
 
-            </Text>
-          </View>
-      
-        <TouchableOpacity onPress={()=>navigation.navigate('JnlOnboard5')} style={[styles.btnView,{backgroundColor:Colors.mainColor,marginTop:wp(20)}]}  activeOpacity={0.7}>
-    <Text style={styles.titleText}>Next</Text>
-</TouchableOpacity>
-    
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: fonts.bold,
+              color: Colors.white,
+              // marginRight: wp(7),
+            }}
+          >
+            Journal
+          </Text>
+
+          {/* Empty View to balance the row */}
+          <View style={{ width: 20 }} />
         </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={{ flex: 1, marginTop: wp(6), marginHorizontal: wp(3) }}>
+            {/* Title */}
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: wp(3),
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: Colors.white,
+                  textAlign: 'center',
+                  fontFamily: fonts.bold,
+                  lineHeight: 26,
+                }}
+              >
+                Letting Go
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: Colors.white,
+                  textAlign: 'center',
+                  marginTop: 10,
+                  fontFamily: fonts.medium,
+                  lineHeight: 26,
+                }}
+              >
+                What do I release to move through today with ease?
+              </Text>
+              {/* <Text
+                style={{
+                  fontSize: 10,
+                  color: Colors.white,
+                  textAlign: 'center',
+                  marginTop: 10,
+                  fontFamily: fonts.bold,
+                  lineHeight: 26,
+                }}
+              >
+                {`(1-3 things is perfect)`}
+              </Text> */}
+            </View>
+
+            {/* Subtitle */}
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: wp(7),
+                marginHorizontal: wp(3),
+              }}
+            ></View>
+
+            {/* Image */}
+            {/* <Image
+              source={images.jnlonboard2}
+              resizeMode="contain"
+              style={{
+                width: wp(50),
+                height: wp(50),
+                alignSelf: 'center',
+                marginVertical: wp(5),
+              }}
+            /> */}
+
+            {/* Input Fields */}
+            <View style={{ marginHorizontal: wp(2), marginTop: hp(5) }}>
+              {data.map(item => (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor:
+                      item.title == lettingGo ? '#BD2BAF' : '#BD2BAF33',
+                    borderWidth: 1,
+                    borderColor: '#BD2BAF',
+                    borderRadius: 15,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: 20,
+                    flexDirection: 'row',
+
+                    //
+                  }}
+                >
+                  <Text style={{ color: Colors.white, marginLeft: 20 }}>
+                    {item.title}
+                  </Text>
+                  <Image
+                    source={item.image}
+                    resizeMode="contain"
+                    style={{ width: 50, marginRight: 20, height: 50 }}
+                  />
+                </View>
+              ))}
+
+              {/*  */}
+            </View>
+            {/* <Text
+              style={{
+                color: 'white',
+                marginTop: 20,
+                alignItems: 'center',
+                textAlign: 'center',
+              }}
+            >
+              This sets your mindset before the day begins
+            </Text> */}
+            {showInput ? (
+              <TextInput
+                placeholder="Write here"
+                placeholderTextColor={'white'}
+                value={otherValue}
+                onChangeText={text => {
+                  setOtherValue(text);
+                  setLettingGo(text);
+                }}
+                textAlignVertical="top"
+                multiline
+                numberOfLines={3}
+                style={{
+                  backgroundColor: '#00000040',
+                  paddingTop: 10,
+                  paddingLeft: 10,
+                  height: 75,
+                  width: '90%',
+                  alignSelf: 'center',
+                  color: 'white',
+                  borderRadius: 10,
+                  marginTop: 20,
+                }}
+              />
+            ) : null}
+            {/* Next Button */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('JnlOnboard5')}
+              style={[
+                styles.btnView,
+                {
+                  backgroundColor: Colors.mainColor,
+                  marginTop: wp(15),
+                  marginBottom: wp(4),
+                  alignSelf: 'center',
+                },
+              ]}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.titleText}>Next</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
-      
-      </View>
-    );
-  };
-  
-  export default JnlOnboard4;
-  
+      </KeyboardAvoidingView>
+    </ImageBackground>
+  );
+};
+
+export default JnlOnboard4;

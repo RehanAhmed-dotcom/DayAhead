@@ -72,11 +72,11 @@ const FriendsMembers = ({ navigation }) => {
         console.log('API error:', err);
       });
   };
-const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?35: 0 }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -85,7 +85,7 @@ const {top}=useSafeAreaInsets()
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
-      <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -93,17 +93,31 @@ const {top}=useSafeAreaInsets()
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
 
@@ -111,11 +125,11 @@ const {top}=useSafeAreaInsets()
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               // marginRight: wp(7),
             }}
           >
-           Friends/Members
+            Friends/Members
           </Text>
 
           {/* Empty View to balance the row */}
@@ -136,7 +150,7 @@ const {top}=useSafeAreaInsets()
                 style={{
                   fontSize: 18,
                   fontFamily: fonts.bold,
-                  color: Colors.black,
+                  color: Colors.white,
                 }}
               >
                 No Friends available
@@ -146,7 +160,7 @@ const {top}=useSafeAreaInsets()
                   style={{
                     fontSize: 14,
                     fontFamily: fonts.bold,
-                    color: Colors.black,
+                    color: Colors.white,
                   }}
                 >
                   To add friends:{' '}
@@ -160,7 +174,7 @@ const {top}=useSafeAreaInsets()
                     style={{
                       fontSize: 14,
                       fontFamily: fonts.bold,
-                      color: 'blue',
+                      color: 'white',
                       textDecorationLine: 'underline',
                     }}
                   >
@@ -172,7 +186,8 @@ const {top}=useSafeAreaInsets()
           ) : (
             <View
               style={{
-                backgroundColor: Colors.white,
+                // backgroundColor: Colors.white,
+
                 borderRadius: 10,
                 //   padding: wp(5),
                 width: wp(100),
@@ -182,7 +197,10 @@ const {top}=useSafeAreaInsets()
               }}
             >
               {myFriends.map((item, index) => (
-                <View
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Conversation', { item: item })
+                  }
                   // key={item}
                   style={{
                     flexDirection: 'row',
@@ -190,7 +208,7 @@ const {top}=useSafeAreaInsets()
                     justifyContent: 'space-between',
                     width: '100%',
                     paddingVertical: wp(4),
-                    backgroundColor: Colors.lightgreen,
+                    backgroundColor: '#BD2BAF33',
                     marginBottom: wp(3),
                     paddingHorizontal: wp(3),
                     borderRadius: wp(2),
@@ -200,7 +218,7 @@ const {top}=useSafeAreaInsets()
                     style={{
                       fontSize: 14,
                       fontFamily: fonts.medium,
-                      color: Colors.black,
+                      color: Colors.white,
                     }}
                   >
                     {item.name}
@@ -208,33 +226,35 @@ const {top}=useSafeAreaInsets()
 
                   {/* Delete Icon */}
                   <View style={{ flexDirection: 'row' }}>
-                  <TouchableOpacity
-                    onPress={() => AddFriendsApi(item.id)}
-                    style={{
-                      padding: wp(1),
-                      marginRight: wp(2)
-                    }}
-                  >
-                    <Feather
-                      name="trash-2"
-                      size={20}
-                      color={Colors.red || 'red'}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate('Conversation', {item: item})}
-                    style={{
-                      padding: wp(1),
-                    }}
-                  >
-                    <Feather
-                      name="message-circle"
-                      size={22}
-                      color={Colors.red || 'red'}
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => AddFriendsApi(item.id)}
+                      style={{
+                        padding: wp(1),
+                        marginRight: wp(2),
+                      }}
+                    >
+                      <Feather
+                        name="trash-2"
+                        size={20}
+                        color={Colors.white || 'red'}
+                      />
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('Conversation', { item: item })
+                      }
+                      style={{
+                        padding: wp(1),
+                      }}
+                    >
+                      <Feather
+                        name="message-circle"
+                        size={22}
+                        color={Colors.red || 'red'}
+                      />
+                    </TouchableOpacity> */}
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           )}

@@ -8,11 +8,13 @@ import {
   Platform,
   TouchableOpacity,
   Alert,
+  Modal,
   ImageBackground,
   Animated,
   Easing,
-  TextInput
+  TextInput,
 } from 'react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import React, { useState, useEffect } from 'react';
 import Input from '../../Components/Input/Index';
 import { Colors, fonts, images, styles } from '../../Constant/Index';
@@ -22,7 +24,9 @@ import {
 } from 'react-native-responsive-screen';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Fontisto from 'react-native-vector-icons/Fontisto'
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import Circle from 'react-native-vector-icons/Entypo';
+import Check from 'react-native-vector-icons/EvilIcons';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import Toast from 'react-native-toast-message';
@@ -35,7 +39,7 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -66,6 +70,7 @@ const Login = ({ navigation }) => {
         '365885584898-aeden87h6iaukq6psj3kbvd6jnonk4e5.apps.googleusercontent.com',
       iosClientId:
         '365885584898-o29d2kn3ebbh6dejmcdqqcvsf3jgsbua.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
     });
   }, []);
 
@@ -82,7 +87,7 @@ const Login = ({ navigation }) => {
         Animated.timing(logoOpacity, {
           toValue: 1,
           duration: 800,
-            easing: Easing.out(Easing.ease),
+          easing: Easing.out(Easing.ease),
           // delay: 500,
           useNativeDriver: true,
         }),
@@ -141,6 +146,13 @@ const Login = ({ navigation }) => {
     formdata.append('email', userData.email);
     formdata.append('password', userData.email);
     formdata.append('password_confirmation', userData.email);
+    if (userData?.photo) {
+      formdata.append('image', {
+        uri: userData.photo,
+        type: 'image/jpeg',
+        name: `image${new Date()}.jpg`,
+      });
+    }
 
     setIsLoading(true);
     PostAPiwithToken({ url: 'register' }, formdata)
@@ -149,7 +161,10 @@ const Login = ({ navigation }) => {
         if (res.status === 'success') {
           dispatch(setUser(res.userdata));
         } else {
-          Alert.alert('Error', res.message?.email ? 'Email already exist' : 'error');
+          Alert.alert(
+            'Error',
+            res.message?.email ? 'Email already exist' : 'error',
+          );
         }
       })
       .catch(err => {
@@ -190,7 +205,10 @@ const Login = ({ navigation }) => {
             loginApi1(user?.email, user?.email);
           } else {
             setIsLoading(false);
-            Alert.alert('Error', 'The email address already exists. Please sign in with your password.');
+            Alert.alert(
+              'Error',
+              'The email address already exists. Please sign in with your password.',
+            );
           }
         } else {
           setIsLoading(false);
@@ -264,7 +282,15 @@ const Login = ({ navigation }) => {
       onSubmit={values => LoginApi(values.email, values.password)}
       validationSchema={_validation}
     >
-      {({ handleChange, handleBlur, handleSubmit, values, touched, errors, setValues }) => {
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        touched,
+        errors,
+        setValues,
+      }) => {
         useEffect(() => {
           if (rememberMe) {
             setValues({ email: savedEmail, password: savedPassword });
@@ -274,7 +300,7 @@ const Login = ({ navigation }) => {
         return (
           // <View style={[styles.mainContainer, { paddingTop: Platform.OS === 'ios' ? top : 0 }]}>
           <ImageBackground
-            source={images.mySplash3}
+            source={images.mainImage}
             style={{
               flex: 1,
               paddingTop: Platform.OS === 'ios' ? 30 : 0,
@@ -289,7 +315,11 @@ const Login = ({ navigation }) => {
               keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
             >
               <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+                <StatusBar
+                  translucent
+                  backgroundColor="transparent"
+                  barStyle="light-content"
+                />
 
                 {/* <View>
                   <Image
@@ -302,14 +332,52 @@ const Login = ({ navigation }) => {
                     resizeMode="cover"
                   />
                 </View> */}
+                <Animated.View
+                  style={{
+                    marginTop: wp(14),
+                    marginHorizontal: wp(6),
+                    opacity: titleOpacity,
+                    transform: [{ translateY: titleY }],
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 40,
+                      color: Colors.white,
+                      textAlign: 'center',
+                      fontFamily: fonts.bold,
+
+                      // textAlign: 'center',
+                    }}
+                  >
+                    Welcome back
+                  </Text>
+                  <Animated.View style={{ opacity: subtitleOpacity }}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontFamily: fonts.medium,
+                        lineHeight: 22,
+                        textAlign: 'center',
+                      }}
+                    >
+                      Login to access your goal, habits and progress
+                    </Text>
+                  </Animated.View>
+                </Animated.View>
+
                 <Animated.View style={{ opacity: logoOpacity }}>
                   <Image
                     source={require('../../Assets/mymainlogo.png')}
                     style={{
-                      width: wp(70),
-                      height: wp(35),
+                      width: wp(90),
+                      height: wp(45),
                       alignSelf: 'center',
-                      marginTop: wp(10)
+                      // paddingVertical:20,
+                      backgroundColor: '#BD2BAF15',
+                      borderRadius: 20,
+                      marginTop: wp(10),
                     }}
                     resizeMode="contain"
                   />
@@ -317,39 +385,6 @@ const Login = ({ navigation }) => {
 
                 <View style={{ paddingHorizontal: 20 }}>
                   {/* Animated Welcome Text */}
-                  <Animated.View
-                    style={{
-                      marginTop: wp(4),
-                      marginHorizontal: wp(6),
-                      opacity: titleOpacity,
-                      transform: [{ translateY: titleY }],
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 40,
-                        color: Colors.white,
-                        fontFamily: fonts.bold,
-
-                        // textAlign: 'center',
-                      }}
-                    >
-                      Hi!{'\n'}Welcome
-                    </Text>
-                    <Animated.View style={{ opacity: subtitleOpacity }}>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontFamily: fonts.medium,
-                          lineHeight: 22,
-                          textAlign: 'center',
-                        }}
-                      >
-                        I'm waiting for you, please enter your detail
-                      </Text>
-                    </Animated.View>
-                  </Animated.View>
 
                   {/* Animated Form Content */}
                   <Animated.View
@@ -380,10 +415,17 @@ const Login = ({ navigation }) => {
                       placeholderTextColor={'white'}
                       placeFontSize={16}
                       value={values.email}
-                      
                       type="default"
                       maxLength={50}
-                      style={{ fontSize: 14, color: Colors.white, borderBottomWidth: 1, borderBottomColor: Colors.white, marginTop: wp(10), backgroundColor: 'transparent' }}
+                      style={{
+                        fontSize: 14,
+                        height: 46,
+                        color: Colors.white,
+                        borderRadius: 10,
+                        paddingHorizontal: 20,
+                        marginTop: wp(10),
+                        backgroundColor: '#00000066',
+                      }}
                     />
                     {errors.email && touched.email && (
                       <Text style={[styles.errortxt]}>{errors.email}</Text>
@@ -412,7 +454,18 @@ const Login = ({ navigation }) => {
                         />
                       }
                     /> */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: Colors.white, marginTop: wp(5), backgroundColor: 'transparent' }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        height: 46,
+                        paddingHorizontal: 20,
+                        borderRadius: 10,
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginTop: wp(5),
+                        backgroundColor: '#00000066',
+                      }}
+                    >
                       <TextInput
                         placeholder="Enter password"
                         onChangeText={handleChange('password')}
@@ -422,7 +475,11 @@ const Login = ({ navigation }) => {
                         placeholderTextColor={Colors.white}
                         type="default"
                         maxLength={20}
-                        style={{ fontSize: 14, color: Colors.white,width:wp(65) }}
+                        style={{
+                          fontSize: 14,
+                          color: Colors.white,
+                          width: wp(65),
+                        }}
                       />
                       <TouchableOpacity onPress={() => toggleSecureText()}>
                         <Icon
@@ -439,17 +496,25 @@ const Login = ({ navigation }) => {
                     <View style={styles.checkrow}>
                       <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={toglecheck}>
-                         
                           {/* <Ionicons
                             name={check ? 'checkmark-circle' : 'checkmark-circle-outline'}
                             size={18}
                             color={check ? Colors.mainColor : Colors.white}
                           /> */}
-                           <Fontisto
-                            name={check ? 'checkbox-active' : 'checkbox-passive'}
-                            size={16}
-                            color={check ? Colors.mainColor : Colors.white}
-                          />
+                          {!check ? (
+                            <Circle name={'circle'} size={16} color={'white'} />
+                          ) : (
+                            <Check
+                              name={'check'}
+                              size={20}
+                              color={Colors.mainColor}
+                            />
+                          )}
+                          {/* <Fontisto
+                              name={check ? 'checkbox-active' : 'checkbox-passive'}
+                              size={16}
+                              color={check ? Colors.mainColor : Colors.white}
+                            /> */}
                         </TouchableOpacity>
                         <Text
                           style={{
@@ -462,7 +527,9 @@ const Login = ({ navigation }) => {
                           Remember Me
                         </Text>
                       </View>
-                      <TouchableOpacity onPress={() => navigation.navigate('Forget')}>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('Forget')}
+                      >
                         <Text
                           style={{
                             color: Colors.white,
@@ -484,14 +551,17 @@ const Login = ({ navigation }) => {
                         alignItems: 'center',
                       }}
                     >
-                      <TouchableOpacity onPress={handleSubmit}    style={{
-                            width: wp(70),
-                            height: wp(13),
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor:Colors.white,
-                            borderRadius:wp(2)
-                          }}>
+                      <TouchableOpacity
+                        onPress={handleSubmit}
+                        style={{
+                          width: wp(70),
+                          height: wp(13),
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: Colors.mainColor,
+                          borderRadius: wp(2),
+                        }}
+                      >
                         {/* <ImageBackground
                           source={require('../../Assets/loginbuttonback.png')}
                           borderRadius={wp(3)}
@@ -503,9 +573,15 @@ const Login = ({ navigation }) => {
                           }}
                           resizeMode="cover"
                         > */}
-                          <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: Colors.black }}>
-                            Log In
-                          </Text>
+                        <Text
+                          style={{
+                            fontFamily: fonts.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          }}
+                        >
+                          Log In
+                        </Text>
                         {/* </ImageBackground> */}
                       </TouchableOpacity>
 
@@ -535,7 +611,7 @@ const Login = ({ navigation }) => {
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        marginTop:wp(8)
+                        marginTop: wp(2),
                       }}
                     >
                       <Text
@@ -547,15 +623,18 @@ const Login = ({ navigation }) => {
                       >
                         Don’t have an account?
                       </Text>
-                      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('SignUp')}
+                      >
                         <Text
                           style={{
-                            color: Colors.mainColor,
+                            color: Colors.white,
                             fontFamily: fonts.bold,
                             fontSize: 14,
                           }}
                         >
-                          {' '}SignUp
+                          {' '}
+                          Create Account
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -563,6 +642,8 @@ const Login = ({ navigation }) => {
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* <MorningModal /> */}
           </ImageBackground>
         );
       }}

@@ -10,7 +10,10 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  Modal,
+  StyleSheet,
 } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Colors, fonts, images } from '../../Constant/Index';
 import {
@@ -26,7 +29,7 @@ import Toast from 'react-native-toast-message';
 import { setup, scheduleAlarmForItem, cancelAlarmById } from '../Notifee';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import SendIntentAndroid from 'react-native-send-intent';
 import notifee, { AndroidNotificationSetting } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,14 +37,16 @@ const SnapAlarm = ({ navigation }) => {
   const user = useSelector(state => state.user.user);
   const [myAlarms, setMyAlarms] = useState([]);
   const [isloading, setIsLoading] = useState(false);
-  console.log('my alarmas', JSON.stringify(myAlarms))
+  console.log('my alarmas', JSON.stringify(myAlarms));
+  const [showModal, setShowModal] = useState(false);
+  const [alarmId, setAlarmId] = useState(0);
+
   // Har 30 second mein update karega time left
   const [refresh, setRefresh] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => setRefresh(prev => prev + 1), 30000);
     return () => clearInterval(interval);
   }, []);
-
 
   // YEH SABSE IMPORTANT FUNCTION HAI - Perfect Time Left Nikalta Hai
   // Sirf ek hi baar declare kar rahe hain
@@ -156,18 +161,20 @@ const SnapAlarm = ({ navigation }) => {
     console.log('Function Run');
     if (Platform.OS !== 'android') {
       console.log('No This is Android Device');
-      return true
-    };
+      return true;
+    }
     console.log('Second Console RUn');
     const settings = await notifee.getNotificationSettings();
-    console.log("thi;rd",settings)
+    console.log('thi;rd', settings);
     if (settings.android.alarm === AndroidNotificationSetting.ENABLED) {
       console.log('Already granted');
-      return true; // Already granted   
+      return true; // Already granted
     }
     console.log('No Granted');
-    // Show explanation to user   
-    Alert.alert('Permission Required', 'For reliable snap alarms (even when app is closed or phone in Doze mode), please allow "Alarms & reminders" access.',
+    // Show explanation to user
+    Alert.alert(
+      'Permission Required',
+      'For reliable snap alarms (even when app is closed or phone in Doze mode), please allow "Alarms & reminders" access.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -186,10 +193,10 @@ const SnapAlarm = ({ navigation }) => {
       return true;
     }
     return false;
-  }
+  };
   useFocusEffect(
     useCallback(() => {
-      if(checkRequest){
+      if (checkRequest) {
         getAllAlarms();
       }
       checkAndRequestExactAlarmPermission();
@@ -246,17 +253,69 @@ const SnapAlarm = ({ navigation }) => {
         setIsLoading(false);
       });
   };
+  const deleteAlarm = id => {
+    const formData = new FormData();
 
-  const renderAlarmItem = ({ item }) => (
+    formData.append('id', id);
+    setIsLoading(true);
+    PostAPiwithToken({ url: 'delete-alaram', Token: user?.api_token }, formData)
+      .then(res => {
+        console.log('error in ddelete alarm', res);
+        setIsLoading(false);
+        if (res.status === 'success') {
+          getAllAlarms();
+          Toast.show({ type: 'success', text1: 'Success', text2: res.message });
+        } else {
+          Toast.show({ type: 'error', text1: 'Error', text2: res.message });
+        }
+      })
+      .catch(err => {
+        setIsLoading(false);
+      });
+  };
+  const renderRightActions = item => (
     <TouchableOpacity
-      disabled={true}
-      activeOpacity={0.8}
+      onPress={() => {
+        setAlarmId(item.id);
+        setShowModal(true);
+      }}
+      style={{
+        backgroundColor: '#BD2BAF80',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: wp(20),
+        marginRight: 10,
+        borderRadius: 16,
+        marginBottom: 20,
+      }}
     >
-      <ImageBackground
+      <AntDesign name={'delete'} size={25} color={'red'} />
+      <Text style={{ color: '#fff', marginTop: 5, fontFamily: fonts.bold }}>
+        Delete
+      </Text>
+    </TouchableOpacity>
+  );
+  const renderAlarmItem = ({ item }) => (
+    <Swipeable
+      renderRightActions={() => renderRightActions(item)}
+      overshootRight={false}
+    >
+      <TouchableOpacity
+        disabled={true}
+        activeOpacity={0.8}
+        style={{
+          marginBottom: 20,
+          backgroundColor: '#BD2BAF80',
+          width: '90%',
+          alignSelf: 'center',
+          borderRadius: 16,
+        }}
+      >
+        {/* <ImageBackground
         source={item.status == 1 ? images.alarmImg : images.alarmImgoff}
         style={{ width: wp(90), height: hp(20), alignSelf: 'center' }}
         resizeMode="contain"
-      >
+      > */}
         <View
           style={{ justifyContent: 'space-between', padding: wp(7), flex: 1 }}
         >
@@ -280,7 +339,7 @@ const SnapAlarm = ({ navigation }) => {
             <LinearGradient
               colors={
                 item.status == 1
-                  ? ['#C847F4', '#2CA57B']
+                  ? ['#BD2BAF', '#BD2BAF']
                   : ['#CCCCCC', '#CCCCCC']
               }
               style={{
@@ -291,29 +350,40 @@ const SnapAlarm = ({ navigation }) => {
                 alignItems: 'center',
               }}
             >
-              <SwitchToggle
-                switchOn={item.status == 1}
-                onPress={() => toggleAlarm(item.id, item.status)}
-                circleColorOff="#FFFFFF"
-                circleColorOn="#FFFFFF"
-                backgroundColorOn="transparent"
-                backgroundColorOff="#CCCCCC"
-                containerStyle={{
-                  width: wp(12),
-                  height: wp(7),
-                  borderRadius: wp(6),
-                }}
-                circleStyle={{
-                  width: wp(6),
-                  height: wp(6),
-                  borderRadius: wp(5),
-                  elevation: 4,
+              <View
+                style={{
                   shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 2,
+                  elevation: 5,
+                  backgroundColor: 'transparent',
                 }}
-              />
+              >
+                <SwitchToggle
+                  switchOn={item.status == 1}
+                  onPress={() => toggleAlarm(item.id, item.status)}
+                  circleColorOff="#FFFFFF"
+                  circleColorOn="#FFFFFF"
+                  backgroundColorOn="transparent"
+                  backgroundColorOff="#CCCCCC"
+                  containerStyle={{
+                    width: wp(12),
+                    height: wp(7),
+                    borderRadius: wp(6),
+                  }}
+                  circleStyle={{
+                    width: wp(6),
+                    height: wp(6),
+                    borderRadius: wp(5),
+                    elevation: 4,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
+                  }}
+                />
+              </View>
             </LinearGradient>
           </View>
 
@@ -375,14 +445,15 @@ const SnapAlarm = ({ navigation }) => {
             </Text>
           </View>
         </View>
-      </ImageBackground>
-    </TouchableOpacity>
+        {/* </ImageBackground> */}
+      </TouchableOpacity>
+    </Swipeable>
   );
   const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 35 : 0, }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -399,30 +470,55 @@ const SnapAlarm = ({ navigation }) => {
             elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',s
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 6 },
             shadowOpacity: 0.2,
             shadowRadius: 3,
-
           }}
         >
-          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{ width: 80 }}
+            onPress={() => navigation.openDrawer()}
+          >
+            <Image
+              source={images.menuIcon}
+              style={{ width: 26, height: 26 }}
+              tintColor="white"
+              resizeMode="contain"
+            />
           </TouchableOpacity>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
             }}
           >
             Snap Alarms
           </Text>
-          <View />
+          <TouchableOpacity
+            style={{
+              height: 50,
+              width: 80,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.navigate('SetAlarm')}
+          >
+            <Text
+              style={{ color: 'white', fontSize: 10, fontFamily: fonts.medium }}
+            >
+              Add Snap
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -430,14 +526,38 @@ const SnapAlarm = ({ navigation }) => {
             <View>
               <View>
                 <Image
-                  source={require('../../Assets/completesub.png')}
+                  source={require('../../Assets/SleepOwl.png')}
                   resizeMode="contain"
-                  style={{ width: wp(70), height: wp(90), alignSelf: 'center' }}
+                  style={{
+                    width: wp(70),
+                    height: wp(90),
+                    backgroundColor: '#BD2BAF15',
+                    alignSelf: 'center',
+                  }}
                 />
               </View>
               <View style={{ marginTop: wp(10) }}>
-                <Text style={{ fontSize: 14, fontFamily: fonts.medium, color: Colors.black, textAlign: 'center' }}>Welcome to snap alarm</Text>
-                <Text style={{ fontSize: 14, fontFamily: fonts.medium, color: Colors.black, textAlign: 'center', lineHeight: 20 }}>If you want set an snap alarm {'\n'} click on plus button</Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: fonts.medium,
+                    color: Colors.white,
+                    textAlign: 'center',
+                  }}
+                >
+                  Welcome to snap alarm
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: fonts.medium,
+                    color: Colors.white,
+                    textAlign: 'center',
+                    lineHeight: 20,
+                  }}
+                >
+                  If you want set an snap alarm {'\n'} click on add snap
+                </Text>
               </View>
             </View>
           ) : (
@@ -447,27 +567,15 @@ const SnapAlarm = ({ navigation }) => {
                 inverted
                 renderItem={renderAlarmItem}
                 keyExtractor={item => item.id.toString()}
-                contentContainerStyle={{ paddingBottom: hp(5) }}
+                contentContainerStyle={{ paddingBottom: hp(2) }}
                 showsVerticalScrollIndicator={false}
               />
-
-              <Text
-                style={{
-                  fontSize: 22,
-                  fontFamily: fonts.medium,
-                  color: 'black',
-                  textAlign: 'center',
-                  marginTop: hp(5),
-                }}
-              >
-                Your selfie is the snooze{'\n'}button
-              </Text>
             </View>
           )}
         </ScrollView>
 
         {/* Plus Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('SetAlarm')}
           style={{ position: 'absolute', bottom: hp(8), right: wp(10) }}
         >
@@ -477,13 +585,101 @@ const SnapAlarm = ({ navigation }) => {
             tintColor={Colors.mainColor}
             resizeMode="contain"
           >
-            {/* <Text style={{fontSize: 24, fontFamily: fonts.bold, color:Colors.white, textAlign: 'center'}}>+</Text> */}
+            
             <AntDesign name={'plus'} size={22} color={Colors.white} />
           </ImageBackground>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <Modal
+          transparent
+          animationType="fade"
+          visible={showModal}
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View style={styless.overlay}>
+            <View style={styless.container}>
+              <Text style={styless.title}>Delete Snap sAlarm</Text>
+              <Text style={styless.message}>
+                Are you sure you want to delete this snap alarm?
+              </Text>
+
+              <View style={styless.buttonRow}>
+                <TouchableOpacity
+                  style={styless.cancelButton}
+                  onPress={() => setShowModal(false)}
+                >
+                  <Text style={styless.cancelText}>No</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styless.confirmButton}
+                  onPress={() => {
+                    setShowModal(false);
+                    deleteAlarm(alarmId);
+                  }}
+                >
+                  <Text style={styless.confirmText}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </ImageBackground>
   );
 };
+const styless = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  message: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  cancelText: {
+    color: '#333',
+    fontWeight: '500',
+  },
+  confirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#E53935',
+    alignItems: 'center',
+  },
+  confirmText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
 
 export default SnapAlarm;

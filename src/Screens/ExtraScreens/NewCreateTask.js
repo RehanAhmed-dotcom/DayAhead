@@ -296,7 +296,7 @@ import {
     const CheckSubscription = () => {
       AllGetAPI({ url: 'check-subscription', Token: user?.api_token })
         .then(res => {
-          console.log('check subscription', JSON.stringify(res));
+          // console.log('check subscription', JSON.stringify(res));
           setmySubscription(res.subscription);
           // setMyNotes(res.data || [])
         })
@@ -306,7 +306,7 @@ import {
     const getToken = async () => {
   
       let fcmToken = await messaging().getToken();
-      console.log("i called onn setup", fcmToken)
+      // console.log("i called onn setup", fcmToken)
       const formData = new FormData();
       formData.append('fcm_token', fcmToken);
       PostAPiwithToken({ url: 'update-fcm', Token: user?.api_token }, formData)

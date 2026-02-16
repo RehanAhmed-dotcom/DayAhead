@@ -26,8 +26,8 @@ const AboutUs = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?30: 0,}}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 15 : 0 }}
       resizeMode="cover"
     >
       <KeyboardAvoidingView
@@ -36,38 +36,57 @@ const AboutUs = ({ navigation }) => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
         <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        elevation: 4,
-                        width: wp(100),
-                        height: wp(25),
-                        backgroundColor: '#FAFAFA',
-                        paddingHorizontal: wp(4),
-                        paddingTop: wp(5),
-                        shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // push shadow down
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-                    }}
-                >
-                    <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-                    <TouchableOpacity onPress={() => navigation.openDrawer()}>
-                        <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
-                    </TouchableOpacity>
-                    <Text style={{ fontSize: 16, fontFamily: fonts.bold, color: Colors.black, marginRight: wp(7) }}>
-                       About Us
-                    </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-
-                    </View>
-                </View>
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            // elevation: 4,
+            width: wp(100),
+            height: wp(25),
+            // backgroundColor: '#FAFAFA',
+            paddingHorizontal: wp(4),
+            paddingTop: wp(5),
+            // shadowColor: '#000',
+            // shadowOffset: { width: 0, height: 6 }, // push shadow down
+            // shadowOpacity: 0.2,
+            // shadowRadius: 3,
+          }}
+        >
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'white',
+              width: 25,
+              height: 25,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
+            <AntDesign name="left" size={20} color={Colors.black} />
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: fonts.bold,
+              color: Colors.white,
+              marginRight: wp(7),
+            }}
+          >
+            About Us
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}></View>
+        </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={{ marginHorizontal: wp(5), marginTop: wp(5) }}>
             <Text
               style={{
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 14,
                 fontFamily: fonts.regular,
                 lineHeight: 22,
@@ -89,7 +108,7 @@ const AboutUs = ({ navigation }) => {
             </Text>
             <Text
               style={{
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 14,
                 fontFamily: fonts.regular,
                 lineHeight: 22,

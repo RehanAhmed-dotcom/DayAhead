@@ -41,8 +41,8 @@ const AllPostApi = async payload => {
   }
 };
 const PostAPiwithToken = async (payload, data) => {
-  console.log('checkkkkkkkkkpAyloaddddd', JSON.stringify(payload));
-  console.log('checkkkkkkkkkDatatatatatatata', JSON.stringify(data));
+  // console.log('checkkkkkkkkkpAyloaddddd', JSON.stringify(payload));
+  // console.log('checkkkkkkkkkDatatatatatatata', JSON.stringify(data));
   try {
     const request = baseUrl + `${payload.url}`;
     const response = await fetch(request, {

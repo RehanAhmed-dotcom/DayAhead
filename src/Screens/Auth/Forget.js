@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ImageBackground,
+  TextInput,
 } from 'react-native';
 import React, { useState } from 'react';
 import Input from '../../Components/Input/Index';
@@ -100,24 +102,25 @@ const Forget = ({ navigation }) => {
         <View
           style={[
             styles.mainContainer,
-            { paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? top : 20  },
+            { paddingHorizontal: 0, paddingTop: Platform.OS === 'ios' ? 0 : 20  },
           ]}
         >
+          <ImageBackground style={{flex:1,}} source={require('../../Assets/EmailPic.png')}>
           {isloading && <Loader />}
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
+            style={{ flex: 1,paddingHorizontal:20 }}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
           >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <StatusBar
                 translucent
                 backgroundColor={'transparent'}
-                barStyle={'dark-content'}
+                barStyle={'light-content'}
               />
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
-                style={{ marginTop: wp(6) }}
+                style={{ marginTop: wp(Platform.OS=="ios"?13: 6),backgroundColor:"white", height:30,alignItems:"center",justifyContent:"center",width:30,borderRadius:30,}}
               >
                 <Entypo
                   name="chevron-thin-left"
@@ -128,8 +131,8 @@ const Forget = ({ navigation }) => {
               <View style={{ marginTop: wp(10) }}>
                 <Text
                   style={{
-                    fontSize: 20,
-                    color: Colors.black,
+                    fontSize: 26,
+                    color: Colors.white,
                     fontFamily: fonts.bold,
                   }}
                 >
@@ -137,8 +140,9 @@ const Forget = ({ navigation }) => {
                 </Text>
                 <Text
                   style={{
-                    fontSize: 14,
-                    color: '#616161',
+                    fontSize: 18  ,
+                    marginTop:20,
+                    color: 'white',
                     fontFamily: fonts.medium,
                     lineHeight: 20,
                   }}
@@ -148,7 +152,7 @@ const Forget = ({ navigation }) => {
                 </Text>
               </View>
               <View style={{ marginTop: wp(15) }}>
-                <Input
+                {/* <Input
                   label="Email"
                   placeholder="Enter email"
                   onChangeText={handleChange('email')}
@@ -163,16 +167,34 @@ const Forget = ({ navigation }) => {
                 />
                 {errors.email && touched.email && (
                   <Text style={[styles.errortxt]}>{errors.email}</Text>
-                )}
+                )} */}
+                                    <TextInput
+                      placeholder="Enter email"
+                      onChangeText={handleChange('email')}
+                      onBlur={handleBlur('email')}
+                      placeholderTextColor={'white'}
+                      placeFontSize={16}
+                      value={values.email}
+                      
+                      type="default"
+                      maxLength={50}
+                      style={{ fontSize: 14,height:46, color: Colors.white, borderRadius:10,
+paddingHorizontal:20, marginTop: wp(10), backgroundColor: '#00000066' }}
+                    />
+                    {errors.email && touched.email && (
+                      <Text style={[styles.errortxt]}>{errors.email}</Text>
+                    )}
+
               </View>
               <View style={{ marginTop: wp(80), marginBottom: wp(10) }}>
                 <MainButton
-                  title="Send OTP Code"
+                  title="Enter OTP Code"
                   onPress={() => handleSubmit()}
                 />
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
+          </ImageBackground>
         </View>
       )}
     </Formik>

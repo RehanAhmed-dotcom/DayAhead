@@ -245,7 +245,7 @@ const handleEndConfirm = (time) => {
             .then(res => {
                 setIsLoading(false);
                 if (res.status === 'success') {
-                    const notifications = res.data || [];
+                    const notifications = res?.data?.reverse() || [];
                     setMyReminders(notifications);
                 }
             })

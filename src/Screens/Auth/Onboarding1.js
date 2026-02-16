@@ -58,8 +58,8 @@ const Onboarding1 = ({ navigation }) => {
   };
   const dispatch = useDispatch();
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.white, paddingTop: Platform.OS === 'ios' ? 10 : 0 }}>
-  
+    <View style={{ flex: 1, backgroundColor: Colors.white, paddingTop: Platform.OS === 'ios' ? 0 : 0 }}>
+  <ImageBackground style={{flex:1}} source={require("../../Assets/Onboarding.png")}>
       <View
           style={{
             // marginTop: wp(7),
@@ -67,23 +67,24 @@ const Onboarding1 = ({ navigation }) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation:4,
+            // elevation:4,
+            marginTop:Platform.OS=="ios"? 20:0,
             width:wp(100),
             height:wp(25),
-            backgroundColor:'#FAFAFA',
+            // backgroundColor:'#FAFAFA',
             paddingHorizontal:wp(4),
             // paddingTop: wp(5),
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 }, // push shadow down
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
+            // shadowColor: '#000',
+            // shadowOffset: { width: 0, height: 6 }, // push shadow down
+            // shadowOpacity: 0.2,
+            // shadowRadius: 3,
         
           }}
         >
            <StatusBar
           translucent
           backgroundColor={'transparent'}
-          barStyle={'dark-content'}
+          barStyle={'light-content'}
         />
           {/* <TouchableOpacity onPress={() =>}>
             <AntDesign name="left" size={20} color={Colors.black} />
@@ -93,14 +94,14 @@ const Onboarding1 = ({ navigation }) => {
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               marginLeft:wp(5)
             }}
           >Onboardings</Text>
-          <Text onPress={() => dispatch(setOnboarding())}>Skip</Text>
+          <Text style={{color:"white"}} onPress={() => dispatch(setOnboarding())}>Skip</Text>
         </View>
       <View style={{ flex: 1,  marginHorizontal: wp(3) }}>
-      <Image
+      {/* <Image
         source={images.onboard1}
         resizeMode="contain"
         style={{
@@ -110,7 +111,7 @@ const Onboarding1 = ({ navigation }) => {
           // bottom: wp(10),
           alignSelf: 'center',
         }}
-      />
+      /> */}
         <View
           style={{
             justifyContent: 'center',
@@ -121,8 +122,9 @@ const Onboarding1 = ({ navigation }) => {
           <Text
             style={{
               fontSize: 22,
-              color: Colors.black,
+              color: Colors.white,
               textAlign: 'center',
+              marginTop:50,
               fontFamily: fonts.bold,
               lineHeight: 26,
             }}
@@ -142,7 +144,7 @@ const Onboarding1 = ({ navigation }) => {
           <Text
             style={{
               fontSize: 16,
-              color: '#616161',
+              color: Colors.white,
               textAlign: 'center',
               fontFamily: fonts.medium,
               lineHeight: 20,
@@ -174,6 +176,7 @@ const Onboarding1 = ({ navigation }) => {
         <AntDesign name={'right'} color={Colors.black} size={20}/>
       </TouchableOpacity>
     </View>
+    </ImageBackground>
     </View>
   );
 };

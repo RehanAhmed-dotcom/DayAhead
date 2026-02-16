@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const Routines = ({ navigation }) => {
   const user = useSelector(state => state.user.user);
   const [selectedDate, setSelectedDate] = useState(moment());
+  const [dots,setDots] = useState([]);
   const formattedSelectedDate = moment(selectedDate).format('MMMM D');
   console.log(
     'selectedededede dateeee:',
@@ -42,7 +43,15 @@ const Routines = ({ navigation }) => {
     const centeredDate = moment(date).subtract(daysToScroll, 'days');
     setSelectedDate(centeredDate);
   };
-
+  const markedDates = dots.map(item => ({
+    date: moment(item), // IMPORTANT
+    dots: [
+      {
+        color: '#4CAF50',
+        selectedColor: '#4CAF50',
+      },
+    ],
+  }));
   const getAllRoutine = date => {
     console.log(
       'funnnccttiioonn daffteeee:',
@@ -62,6 +71,7 @@ const Routines = ({ navigation }) => {
         if (res.status === 'success') {
           // console.log('check data', JSON.stringify(res));
           setAllRoutines(res.data || []);
+          setDots(res.alldates)
         }
       })
       .catch(err => {
@@ -70,10 +80,73 @@ const Routines = ({ navigation }) => {
       });
   };
 
+  // const CustomDayComponent = ({ date, selected, style }) => {
+  //   const isSelected = selected;
+  //   const dayName = moment(date).format('ddd');
+  //   const dateNumber = moment(date).format('D');
+
+  //   return (
+  //     <View
+  //       style={[
+  //         style,
+  //         {
+  //           flexDirection: 'column',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           backgroundColor: isSelected ? Colors.mainColor : 'white',
+  //           borderRadius: wp(3),
+  //           height: 118,
+  //           borderWidth: isSelected ? 0 : 0.5,
+  //           borderColor: isSelected ? undefined : '#E9F1FF',
+  //           elevation: isSelected ? 0 : 1,
+  //         },
+  //       ]}
+  //     >
+  //       <Text
+  //         style={
+  //           isSelected
+  //             ? {
+  //                 color: Colors.white,
+  //                 fontSize: wp(5.5),
+  //                 fontFamily: fonts.semibold,
+  //               }
+  //             : {
+  //                 color: '#1E293B',
+  //                 fontSize: wp(4),
+  //                 fontFamily: fonts.semibold,
+  //               }
+  //         }
+  //       >
+  //         {dateNumber}
+  //       </Text>
+  //       <Text
+  //         style={
+  //           isSelected
+  //             ? {
+  //                 color: 'white',
+  //                 fontSize: wp(3.5),
+  //                 fontFamily: fonts.regular,
+  //                 marginTop: wp(2),
+  //               }
+  //             : {
+  //                 color: 'white',
+  //                 fontSize: wp(3.5),
+  //                 fontFamily: fonts.regular,
+  //                 marginTop: wp(2),
+  //               }
+  //         }
+  //       >
+  //         {dayName}
+  //       </Text>
+  //     </View>
+  //   );
+  // };
   const CustomDayComponent = ({ date, selected, style }) => {
     const isSelected = selected;
-    const dayName = moment(date).format('ddd');
-    const dateNumber = moment(date).format('D');
+
+    // `date` is already a moment object
+    const dayName = date.format('ddd');
+    const dateNumber = date.format('D');
 
     return (
       <View
@@ -93,45 +166,28 @@ const Routines = ({ navigation }) => {
         ]}
       >
         <Text
-          style={
-            isSelected
-              ? {
-                  color: Colors.white,
-                  fontSize: wp(5.5),
-                  fontFamily: fonts.semibold,
-                }
-              : {
-                  color: '#1E293B',
-                  fontSize: wp(4),
-                  fontFamily: fonts.semibold,
-                }
-          }
+          style={{
+            color: isSelected ? Colors.white : '#1E293B',
+            fontSize: isSelected ? wp(5.5) : wp(4),
+            fontFamily: fonts.semibold,
+          }}
         >
           {dateNumber}
         </Text>
+
         <Text
-          style={
-            isSelected
-              ? {
-                  color: 'white',
-                  fontSize: wp(3.5),
-                  fontFamily: fonts.regular,
-                  marginTop: wp(2),
-                }
-              : {
-                  color: 'white',
-                  fontSize: wp(3.5),
-                  fontFamily: fonts.regular,
-                  marginTop: wp(2),
-                }
-          }
+          style={{
+            color: isSelected ? Colors.white : '#1E293B', // fix unselected text color
+            fontSize: wp(3.5),
+            fontFamily: fonts.regular,
+            marginTop: wp(2),
+          }}
         >
           {dayName}
         </Text>
       </View>
     );
   };
-
   const CustomHeaderComponent = ({ date }) => {
     return (
       <View
@@ -170,11 +226,11 @@ const Routines = ({ navigation }) => {
       handleDateSelected();
     }, []),
   );
-  const {top}=useSafeAreaInsets()
+  const { top } = useSafeAreaInsets()
   return (
     <ImageBackground
       source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?30: 0, }}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 30 : 0, }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -184,33 +240,33 @@ const Routines = ({ navigation }) => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
         <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        elevation: 4,
-                        width: wp(100),
-                        height: wp(25),
-                        backgroundColor: '#FAFAFA',
-                        paddingHorizontal: wp(4),
-                        paddingTop: wp(5),
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 6 }, // push shadow down
-                        shadowOpacity: 0.2,
-                        shadowRadius: 3,
-                    }}
-                >
-                    <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-                    <TouchableOpacity onPress={() => navigation.openDrawer()}>
-                        <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
-                    </TouchableOpacity>
-                    <Text style={{ fontSize: 16, fontFamily: fonts.bold, color: Colors.black, marginRight: wp(7) }}>
-                        Routines
-                    </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            elevation: 4,
+            width: wp(100),
+            height: wp(25),
+            backgroundColor: '#FAFAFA',
+            paddingHorizontal: wp(4),
+            paddingTop: wp(5),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 6 }, // push shadow down
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
+          }}
+        >
+          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+          <TouchableOpacity onPress={() => navigation.openDrawer()}>
+            <Image source={images.menuIcon} style={{ width: 26, height: 26 }} tintColor="black" resizeMode="contain" />
+          </TouchableOpacity>
+          <Text style={{ fontSize: 16, fontFamily: fonts.bold, color: Colors.black, marginRight: wp(7) }}>
+            Routines
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
-                    </View>
-                </View>
+          </View>
+        </View>
         <CalendarStrip
           style={{ height: 180, paddingTop: 20, paddingBottom: 10 }}
           calendarHeaderStyle={{
@@ -220,6 +276,7 @@ const Routines = ({ navigation }) => {
             fontSize: wp(4.5),
             fontFamily: fonts.bold,
           }}
+          markedDates={markedDates}
           // calendarHeaderFormat="MMMM, D YYYY"
           customDateHeader={CustomHeaderComponent} // Use custom header with image
           showArrows={false}
@@ -302,16 +359,17 @@ const Routines = ({ navigation }) => {
                         width: wp(78),
                         backgroundColor:
                           item?.routine_name == 'Wake Up'
-                            ? '#89FF8B'
+                            ? '#FCCABD'
                             : item?.routine_name == 'Brush Teeth'
-                            ? '#FF8FE3'
-                            : item?.routine_name == 'Make Bed'
-                            ? '#FFB95C'
-                            : item?.routine_name == 'Meditation'
-                            ? '#72D9FF'
-                            : item?.routine_name == 'Exercise'
-                            ? '#89FF8B'
-                            : '#FDD335',
+                              ? '#C5DBFC'
+                              : item?.routine_name == 'Make Bed'
+                                ? '#DDBDE5'
+                                : item?.routine_name == 'Meditation'
+                                  ? '#C5DBFC'
+                                  : item?.routine_name == 'Exercise'
+                                    ? '#FDEBBD' :
+                                    item?.routine_name == "Eat breakfast" ? "#0A8043"
+                                      : '#FDEBBD',
                       },
                     ]}
                   >
@@ -326,7 +384,7 @@ const Routines = ({ navigation }) => {
                         style={{
                           fontSize: 14,
                           fontFamily: fonts.bold,
-                          color: Colors.black,
+                          color: item?.routine_name == "Eat breakfast" ?"white": Colors.black,
                         }}
                       >
                         {item.routine_name}

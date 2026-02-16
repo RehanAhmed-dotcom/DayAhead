@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 import React, { useState } from 'react';
 import Input from '../../Components/Input/Index';
@@ -26,6 +27,7 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import { PostAPiwithToken } from '../../Components/ApiRoot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Input1 from '../../Components/Input1';
 const NewPassword = ({ navigation, route }) => {
   const { email, value } = route.params;
   // State to manage input values
@@ -113,118 +115,136 @@ const NewPassword = ({ navigation, route }) => {
         <View
           style={[
             styles.mainContainer,
-            { paddingHorizontal: 20,  paddingTop:Platform.OS=='ios'?top: 20 },
+            { paddingHorizontal: 0, paddingTop: Platform.OS == 'ios' ? 0 : 20 },
           ]}
         >
-          {isloading && <Loader />}
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          <ImageBackground
+            source={require('../../Assets/PasswordPic.png')}
+            style={{ flex: 1, paddingHorizontal: 20 }}
           >
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-              <StatusBar
-                translucent
-                backgroundColor={'transparent'}
-                barStyle={'dark-content'}
-              />
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={{ marginTop: wp(6) }}
-              >
-                <Entypo
-                  name="chevron-thin-left"
-                  color={Colors.black}
-                  size={20}
+            {isloading && <Loader />}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+            >
+              <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <StatusBar
+                  translucent
+                  backgroundColor={'transparent'}
+                  barStyle={'light-content'}
                 />
-              </TouchableOpacity>
-              <View style={{ marginTop: wp(10) }}>
-                <Text
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
                   style={{
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontFamily: fonts.bold,
+                    marginTop: wp(Platform.OS == 'ios' ? 10 : 6),
+                    backgroundColor: 'white',
+                    width: 30,
+                    height: 30,
+                    borderRadius: 30,
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  Forgot Your Password?
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: '#616161',
-                    fontFamily: fonts.medium,
-                    lineHeight: 20,
-                  }}
-                >
-                  Enter your registered email below. We’ll send {'\n'}you a
-                  one-time password (OTP) to reset{'\n'}your password
-                </Text>
-              </View>
-              <View style={{ marginTop: wp(15) }}>
-                <Input
-                  label="New Password"
-                  placeholder="Enter new password"
-                  onChangeText={text => {
-                    handleChange('password')(text);
-                  }}
-                  onBlur={handleBlur('password')}
-                  value={values.password}
-                  secureText={showPassword ? false : true}
-                  secureToggle={toggleSecureText}
-                  type="default"
-                  showBorder
-                  inputColor="#F5F5F5"
-                  labelColor="#212121"
-                  placeFontSize={16}
-                  maxLength={20}
-                  image2={
-                    <Icon
-                      name={showPassword ? 'visibility' : 'visibility-off'}
-                      size={wp(6)}
-                      color="#616161"
-                    />
-                  }
-                />
-                {errors.password && touched.password && (
-                  <Text style={[styles.errortxt]}>{errors.password}</Text>
-                )}
-                <Input
-                  label="Confirm New Password"
-                  placeholder="Enter new password"
-                  onChangeText={text => {
-                    handleChange('repassword')(text);
-                  }}
-                  onBlur={handleBlur('repassword')}
-                  value={values.repassword}
-                  secureText={conshowPassword ? false : true}
-                  secureToggle={toggleConfirmSecureText}
-                  type="default"
-                  showBorder
-                  inputColor="#F5F5F5"
-                  labelColor="#212121"
-                  placeFontSize={16}
-                  maxLength={20}
-                  image2={
-                    <Icon
-                      name={conshowPassword ? 'visibility' : 'visibility-off'}
-                      size={wp(6)}
-                      color="#616161"
-                    />
-                  }
-                />
-                {errors.repassword && touched.repassword && (
-                  <Text style={styles.errortxt}>{errors.repassword}</Text>
-                )}
-              </View>
-              <View style={{ marginTop: wp(50), marginBottom: wp(10) }}>
-                <MainButton
-                  title="Save New Password"
-                  // onPress={() => navigation.navigate('AllSet')}
-                  onPress={() => handleSubmit()}
-                />
-              </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
+                  <Entypo
+                    name="chevron-thin-left"
+                    color={Colors.black}
+                    size={20}
+                  />
+                </TouchableOpacity>
+                <View style={{ marginTop: wp(10) }}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontFamily: fonts.bold,
+                    }}
+                  >
+                    Secure Your Account
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      marginTop: 10,
+                      fontFamily: fonts.medium,
+                      lineHeight: 20,
+                    }}
+                  >
+                    Choose a new password for your Dayahead {'\n'}account. Make
+                    sure it’s secure and{'\n'}memorable
+                  </Text>
+                </View>
+                <View style={{ marginTop: wp(15) }}>
+                  <Input1
+                    // label="New Password"
+                    placeholder="New Password"
+                    onChangeText={text => {
+                      handleChange('password')(text);
+                    }}
+                    onBlur={handleBlur('password')}
+                    // placeholderTextColor={'white'}
+
+                    value={values.password}
+                    secureText={showPassword ? false : true}
+                    secureToggle={toggleSecureText}
+                    type="default"
+                    showBorder
+                    inputColor="#00000066"
+                    color="white"
+                    labelColor="#212121"
+                    placeFontSize={16}
+                    maxLength={20}
+                    image2={
+                      <Icon
+                        name={showPassword ? 'visibility' : 'visibility-off'}
+                        size={wp(6)}
+                        color="white"
+                      />
+                    }
+                  />
+                  {errors.password && touched.password && (
+                    <Text style={[styles.errortxt]}>{errors.password}</Text>
+                  )}
+                  <Input1
+                    // label="Confirm New Password"
+                    placeholder="Confirm New Password"
+                    onChangeText={text => {
+                      handleChange('repassword')(text);
+                    }}
+                    onBlur={handleBlur('repassword')}
+                    value={values.repassword}
+                    secureText={conshowPassword ? false : true}
+                    secureToggle={toggleConfirmSecureText}
+                    type="default"
+                    showBorder
+                    inputColor="#00000066"
+                    color="white"
+                    labelColor="white"
+                    placeFontSize={16}
+                    maxLength={20}
+                    image2={
+                      <Icon
+                        name={conshowPassword ? 'visibility' : 'visibility-off'}
+                        size={wp(6)}
+                        color="white"
+                      />
+                    }
+                  />
+                  {errors.repassword && touched.repassword && (
+                    <Text style={styles.errortxt}>{errors.repassword}</Text>
+                  )}
+                </View>
+                <View style={{ marginTop: wp(50), marginBottom: wp(10) }}>
+                  <MainButton
+                    title="Save New Password"
+                    // onPress={() => navigation.navigate('AllSet')}
+                    onPress={() => handleSubmit()}
+                  />
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </ImageBackground>
         </View>
       )}
     </Formik>

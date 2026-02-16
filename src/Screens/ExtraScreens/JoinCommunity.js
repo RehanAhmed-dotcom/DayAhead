@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
+  Alert,
 } from 'react-native';
 import React, { useState } from 'react';
 import { Colors, fonts, images, styles } from '../../Constant/Index';
@@ -18,8 +19,10 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import Circle from 'react-native-vector-icons/Fontisto';
+import Check from 'react-native-vector-icons/EvilIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Feather from 'react-native-vector-icons/Feather';
+import Caution from 'react-native-vector-icons/Ionicons';
 import MainButton from '../../Components/MainButton';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -34,7 +37,7 @@ const JoinCommunity = ({ navigation, route }) => {
   const { item } = route.params;
   console.log('my item data', JSON.stringify(item));
   const [saveduration, setSaveDuration] = useState(false);
-
+  const [check, setcheck] = useState(false);
   const [isloading, setIsLoading] = useState(false);
 
   const JoinCommunityApi = () => {
@@ -74,8 +77,8 @@ const JoinCommunity = ({ navigation, route }) => {
   };
   return (
     <ImageBackground
-      source={images.myallbackbg}
-      style={{ flex: 1, paddingTop:Platform.OS === 'ios' ?40: 0, }}
+      source={images.mainImage}
+      style={{ flex: 1, paddingTop: Platform.OS === 'ios' ? 40 : 0 }}
       resizeMode="cover"
     >
       {isloading && <Loader />}
@@ -84,32 +87,46 @@ const JoinCommunity = ({ navigation, route }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? hp(10) : 0}
       >
- <View
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            elevation: 4,
+            // elevation: 4,
             width: wp(100),
             height: wp(25),
-            backgroundColor: '#FAFAFA',
+            // backgroundColor: '#FAFAFA',
             paddingHorizontal: wp(4),
             paddingTop: wp(5),
           }}
         >
-              <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="dark-content"
+          />
+          <TouchableOpacity
+            style={{
+              width: 25,
+              height: 25,
+              backgroundColor: 'white',
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}
+          >
             <AntDesign name="left" size={20} color={Colors.black} />
           </TouchableOpacity>
           <Text
             style={{
               fontSize: 16,
               fontFamily: fonts.bold,
-              color: Colors.black,
+              color: Colors.white,
               marginRight: wp(7),
             }}
           >
-            {item?.title ? item?.title : 'Sensitive Community'}
+            {'Community'}
           </Text>
           <Text></Text>
         </View>
@@ -121,48 +138,228 @@ const JoinCommunity = ({ navigation, route }) => {
               style={{
                 width: wp(90),
                 paddingVertical: wp(5),
-                backgroundColor: Colors.white,
-                elevation: 3,
+                // backgroundColor: Colors.white,
+                backgroundColor: '#BD2BAF26',
+                // elevation: 3,
                 alignSelf: 'center',
                 borderRadius: wp(3),
               }}
             >
-              <Image
+              {/* <Image
                 source={images.joincommunityImg}
                 resizeMode="contain"
                 style={{ width: wp(25), height: wp(25), alignSelf: 'center' }}
-              />
+              /> */}
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: fonts.medium,
+                  textAlign: 'center',
+                  fontSize: 20,
+                  lineHeight: 25,
+                }}
+              >
+                Community Rules & {'\n'}Anonymous Access
+              </Text>
+
+              <View
+                style={{
+                  backgroundColor: '#00000033',
+                  marginTop: 20,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 50,
+                }}
+              >
+                <Caution name={'warning'} size={30} color={'yellow'} />
+                <Text
+                  style={{
+                    color: '#DB4E69',
+                    marginLeft: 10,
+                    fontFamily: fonts.medium,
+                  }}
+                >
+                  Sensitive Community Notice
+                </Text>
+              </View>
               <Text
                 style={{
                   fontSize: 16,
-                  fontFamily: fonts.bold,
-                  color: Colors.black,
+                  color: 'white',
                   textAlign: 'center',
-                }}
-              >
-                {item.title}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 10,
+                  marginTop: 10,
                   fontFamily: fonts.medium,
-                  color: '#747474',
-                  textAlign: 'center',
-                  lineHeight: 14,
+                  lineHeight: 25,
                 }}
               >
-                Choose how you want to participate
+                Before You Continue, Please Agree to These Rules
               </Text>
+              <View
+                style={{
+                  marginTop: 20,
+                  width: '85%',
+                  alignSelf: 'center',
+                  padding: 10,
+                  borderRadius: 10,
+                  backgroundColor: '#00000033',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    alignItems: 'center',
+                  }}
+                >
+                  {' '}
+                  <AntDesign
+                    name={'check'}
+                    size={20}
+                    color={Colors.mainColor}
+                  />
+                  <Text style={{ color: 'white', fontSize: 12, marginLeft: 5 }}>
+                    Be respectful and kind to all members
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    alignItems: 'center',
+                  }}
+                >
+                  {' '}
+                  <AntDesign
+                    name={'check'}
+                    size={20}
+                    color={Colors.mainColor}
+                  />
+                  <Text style={{ color: 'white', fontSize: 12, marginLeft: 5 }}>
+                    No hate speech, harasment, or bullying{' '}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    alignItems: 'center',
+                  }}
+                >
+                  {' '}
+                  <AntDesign
+                    name={'check'}
+                    size={20}
+                    color={Colors.mainColor}
+                  />
+                  <Text style={{ color: 'white', marginLeft: 5, fontSize: 12 }}>
+                    No explicit or inappropriate content
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    alignItems: 'center',
+                  }}
+                >
+                  {' '}
+                  <AntDesign
+                    name={'check'}
+                    size={20}
+                    color={Colors.mainColor}
+                  />
+                  <Text style={{ color: 'white', marginLeft: 5, fontSize: 12 }}>
+                    Do not share personal or private information
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    alignItems: 'center',
+                  }}
+                >
+                  {' '}
+                  <AntDesign
+                    name={'check'}
+                    size={20}
+                    color={Colors.mainColor}
+                  />
+                  <Text style={{ color: 'white', marginLeft: 5, fontSize: 12 }}>
+                    Follow moderator instructions at all the time
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  marginTop: 20,
+                  width: '85%',
+                  alignSelf: 'center',
+                  padding: 10,
+                  borderRadius: 10,
+                  backgroundColor: '#00000033',
+                }}
+              >
+                <View style={{ marginTop: 5 }}>
+                  {' '}
+                  <Text
+                    style={{
+                      color: 'white',
+                      lineHeight: 20,
+                      fontSize: 12,
+                      marginLeft: 5,
+                    }}
+                  >
+                    This is a sensitive community. For your safety, you will
+                    participate anonymous/y.{'\n'}A system-generated username
+                    will be assigned to protect your identity
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: wp(80),
+                  alignSelf: 'center',
+                  marginTop: 10,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <TouchableOpacity onPress={() => setcheck(!check)}>
+                  {!check ? (
+                    <Circle
+                      name={'checkbox-passive'}
+                      size={20}
+                      color={Colors.mainColor}
+                    />
+                  ) : (
+                    <Circle
+                      name={'checkbox-active'}
+                      size={20}
+                      color={Colors.mainColor}
+                    />
+                  )}{' '}
+                </TouchableOpacity>
+                <Text style={{ color: 'white', fontSize: 12, marginLeft: 10 }}>
+                  I have read and agree to follow the community rules
+                </Text>
+              </View>
               <TouchableOpacity
-                onPress={() => setSaveDuration(true)}
+                onPress={() =>
+                  check
+                    ? JoinCommunityApi()
+                    : Alert.alert('Warning', 'Please check the agreement rules')
+                }
                 style={{
                   width: wp(80),
                   height: wp(10),
                   justifyContent: 'center',
+
                   alignItems: 'center',
                   alignSelf: 'center',
-                  backgroundColor: '#00BF63',
-                  borderRadius: wp(6),
+                  backgroundColor: Colors.mainColor,
+                  borderRadius: 10,
                   marginTop: wp(5),
                 }}
               >
@@ -173,9 +370,21 @@ const JoinCommunity = ({ navigation, route }) => {
                     color: Colors.white,
                   }}
                 >
-                  Join Community
+                  Agree & Join Community
                 </Text>
               </TouchableOpacity>
+              <Text
+                style={{
+                  color: '#BD2BAF',
+                  width: '80%',
+                  textAlign: 'center',
+                  alignSelf: 'center',
+                  marginTop: 10,
+                }}
+              >
+                {' '}
+                Violating these rules may result in removal from the community
+              </Text>
             </View>
           </View>
         </ScrollView>
